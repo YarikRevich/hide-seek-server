@@ -5,28 +5,30 @@ import (
 	"GameServer/MessageParser"
 	"GameServer/Utils"
 	C "GameServer/Components"
-	_ "fmt"
 )
 
 func ListenToCommands(request string, listener *net.UDPConn, addr *net.UDPAddr, data *C.Data){
 	unparsedReq, err := MessageParser.UnparseMessage(request)
-	if err != 0 {
+	if err != nil {
 		Utils.SendErrorResponse(err, listener, addr)
 	}
 	lobbyID := Utils.GetLobbyNum(request)
 	switch unparsedReq{
 	case "CreateLobby":
 		err := C.CreateLobby(lobbyID, data)
-		if err != 0{
+		if err != nil {
 			Utils.SendErrorResponse(err, listener, addr)
 		}
 	case "AddToLobby":
 		err := C.AddToLobby(lobbyID, request, addr, data)
-		if err != 0{
+		if err != nil {
 			Utils.SendErrorResponse(err, listener, addr)
 		}
 	case "GetMembersInLobby":
-		lobbyMembers, lobbyMembersAddrs := C.GetMembersInLobby(lobbyID, data)
+		lobbyMembers, lobbyMembersAddrs, err := C.GetMembersInLobby(lobbyID, data)
+		if err != nil {
+			Utils.SendErrorResponse(err, listener, addr)
+		}
 		C.SendLobbyMembers(listener, lobbyMembers, lobbyMembersAddrs)
 	case "UpdateUser":
 		C.UpdateUser(request, addr, data)
@@ -44,7 +46,7 @@ func Server1(stopChan chan bool){
 	data := new(C.Data)
 	data.PreparingLobbies = make(map[string][]*net.UDPAddr)
 	data.ReadyLobbies = make(map[string][]*net.UDPAddr)
-	data.ExactClient = make(map[*net.UDPAddr]string)
+	data.ExactClient = make(map[string]string)
 	addr := net.UDPAddr{
 		Port: 9001,
 		IP: net.ParseIP("127.0.0.1"),

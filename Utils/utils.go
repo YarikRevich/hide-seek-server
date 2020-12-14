@@ -1,9 +1,9 @@
 package Utils
 
 import (
-	"fmt"
 	"net"
 	"strings"
+	"fmt"
 )
 
 func GetLobbyNum(request string) string {
@@ -26,7 +26,7 @@ func GetLobbyNum(request string) string {
 	return strings.Join(cleanedID, "")
 }
 
-func SendErrorResponse(err int, listener *net.UDPConn, addr *net.UDPAddr) {
-	formattedResp := fmt.Sprintf("%s@%d", "error", err)
+func SendErrorResponse(err error, listener *net.UDPConn, addr *net.UDPAddr) {
+	formattedResp := fmt.Sprintf("%s@%s", "error", err)
 	listener.WriteTo([]byte(formattedResp), addr)
 }

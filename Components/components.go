@@ -4,22 +4,23 @@ import (
 	"net"
 	"fmt"
 	"strings"
+	"errors"
 )
 
 type Data struct{
 	PreparingLobbies map[string][]*net.UDPAddr
 	ReadyLobbies map[string][]*net.UDPAddr
-	ExactClient map[*net.UDPAddr]string
+	ExactClient map[string]string
 }
 
-func CreateLobby(lobbyID string, data *Data)int{
+func CreateLobby(lobbyID string, data *Data)error{
 	for key := range data.PreparingLobbies{
 		if key == lobbyID{
-			return 1
+			return errors.New("such lobby already exists!")
 		}
 	}
 	data.PreparingLobbies[lobbyID] = []*net.UDPAddr{}
-	return 0
+	return nil
 }
 
 func LobbyExists(lobbyID string, data *Data)bool{
@@ -31,18 +32,18 @@ func LobbyExists(lobbyID string, data *Data)bool{
 	return false
 }
 
-func AddToLobby(lobbyID string, request string, addr *net.UDPAddr, data *Data)int{
+func AddToLobby(lobbyID string, request string, addr *net.UDPAddr, data *Data)error{
 	value, _ := data.PreparingLobbies[lobbyID]
 	if !LobbyExists(lobbyID, data){
-		return 1
+		return errors.New("lobby does not exist")
 	}
 	value = append(value, addr)
 	data.PreparingLobbies[lobbyID] = value
-	data.ExactClient[addr] = strings.Split(request, "~/")[1]
-	return 0
+	data.ExactClient[addr.String()] = strings.Split(request, "~/")[1]
+	return nil
 }
 
-func GetMembersInLobby(lobbyID string, data *Data)(string, []*net.UDPAddr){
+func GetMembersInLobby(lobbyID string, data *Data)(string, []*net.UDPAddr, error){
 	lobbyMembers := []string{}
 	lobbyMembersAddrs := []*net.UDPAddr{}
 	for key := range data.PreparingLobbies{
@@ -53,8 +54,11 @@ func GetMembersInLobby(lobbyID string, data *Data)(string, []*net.UDPAddr){
 			}
 		}
 	}
+	if len(lobbyMembers) == 0{
+		return "", []*net.UDPAddr{}, errors.New("lobby does not exist")
+	}
 	lobbyMembersJoined := strings.Join(lobbyMembers, "//")
- 	return lobbyMembersJoined, lobbyMembersAddrs
+ 	return lobbyMembersJoined, lobbyMembersAddrs, nil
 }
 
 func SendLobbyMembers(listener *net.UDPConn, lobbyMembers string, lobbyMembersAddrs []*net.UDPAddr){
@@ -69,16 +73,16 @@ func ClosePreparingLobby(lobbyID string, data *Data){
 }
 
 func UpdateUser(request string, addr *net.UDPAddr, data *Data){
-	data.ExactClient[addr] = strings.Split(request, "~/")[1]
+	data.ExactClient[addr.String()] = strings.Split(request, "~/")[1]
 }
 
 func GetUsersInfo(lobbyID string, addr *net.UDPAddr, listener *net.UDPConn, data *Data){
 	var usersInfo []string
 	for _, value := range data.ReadyLobbies[lobbyID]{
-		usersInfo = append(usersInfo, data.ExactClient[value])
+		if value.String() != addr.String(){
+			usersInfo = append(usersInfo, data.ExactClient[value.String()])
+		}
 	}
 	formattedResp := fmt.Sprintf("GetUsersInfo///%s~/%s", lobbyID, strings.Join(usersInfo, "/::/"))
-	fmt.Println(formattedResp)
 	listener.WriteTo([]byte(formattedResp), addr)
-	
 }

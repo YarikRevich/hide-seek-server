@@ -2,6 +2,7 @@ package MessageParser
 
 import (
 	"strings"
+	"errors"
 )
 
 // func checkClientExists(conn string)bool{
@@ -27,28 +28,28 @@ func (r reqCheck) checkReq(reqtype string) bool {
 	return false
 }
 
-func UnparseMessage(message string) (string, int) {
+func UnparseMessage(message string) (string, error) {
 	reqCheck := reqCheck{request: message}
 	if reqCheck.checkReq("CreateLobby") {
-		return "CreateLobby", 0
+		return "CreateLobby", nil
 	}
 	if reqCheck.checkReq("AddToLobby") {
-		return "AddToLobby", 0
+		return "AddToLobby", nil
 	}
 	if reqCheck.checkReq("GetMembersInLobby") {
-		return "GetMembersInLobby", 0
+		return "GetMembersInLobby", nil
 	}
 	if reqCheck.checkReq("UpdateUser") {
-		return "UpdateUser", 0
+		return "UpdateUser", nil
 	}
 	if reqCheck.checkReq("GetUsersInfo"){
-		return "GetUsersInfo", 0
+		return "GetUsersInfo", nil
 	}
 	if reqCheck.checkReq("ClosePreparingLobby") {
-		return "ClosePreparingLobby", 0
+		return "ClosePreparingLobby", nil
 	}
 	if strings.Contains(reqCheck.request, "!_") {
-		return "", 0
+		return "", nil
 	}
-	return "error", 2
+	return "error", errors.New("an error happened!")
 }
