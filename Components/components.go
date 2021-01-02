@@ -13,10 +13,10 @@ type Data struct{
 	ExactClient map[string]string
 }
 
-func CreateLobby(lobbyID string, data *Data)error{
+func CreateLobby(lobbyID string, id string, data *Data)error{
 	for key := range data.PreparingLobbies{
 		if key == lobbyID{
-			return errors.New("such lobby already exists!")
+			return errors.New(fmt.Sprintf("%s_such lobby already exists!", id))
 		}
 	}
 	data.PreparingLobbies[lobbyID] = []*net.UDPAddr{}
@@ -32,10 +32,15 @@ func LobbyExists(lobbyID string, data *Data)bool{
 	return false
 }
 
-func AddToLobby(lobbyID string, request string, addr *net.UDPAddr, data *Data)error{
+func AddToLobby(lobbyID string, request string, addr *net.UDPAddr, id string, data *Data)error{
 	value, _ := data.PreparingLobbies[lobbyID]
 	if !LobbyExists(lobbyID, data){
-		return errors.New("lobby does not exist")
+		return errors.New(fmt.Sprintf("%s_lobby does not exist", id))
+	}
+	for _, user := range value{
+		if addr.String() == user.String(){
+			return nil
+		}
 	}
 	value = append(value, addr)
 	data.PreparingLobbies[lobbyID] = value
@@ -43,7 +48,7 @@ func AddToLobby(lobbyID string, request string, addr *net.UDPAddr, data *Data)er
 	return nil
 }
 
-func GetMembersInLobby(lobbyID string, data *Data)(string, []*net.UDPAddr, error){
+func GetMembersInLobby(lobbyID string, id string, data *Data)(string, []*net.UDPAddr, error){
 	lobbyMembers := []string{}
 	lobbyMembersAddrs := []*net.UDPAddr{}
 	for key := range data.PreparingLobbies{
@@ -55,15 +60,15 @@ func GetMembersInLobby(lobbyID string, data *Data)(string, []*net.UDPAddr, error
 		}
 	}
 	if len(lobbyMembers) == 0{
-		return "", []*net.UDPAddr{}, errors.New("lobby does not exist")
+		return "", []*net.UDPAddr{}, errors.New(fmt.Sprintf("%s_lobby does not exist", id))
 	}
 	lobbyMembersJoined := strings.Join(lobbyMembers, "//")
  	return lobbyMembersJoined, lobbyMembersAddrs, nil
 }
 
-func SendLobbyMembers(listener *net.UDPConn, lobbyMembers string, lobbyMembersAddrs []*net.UDPAddr){
+func SendLobbyMembers(listener *net.UDPConn, id string, lobbyMembers string, lobbyMembersAddrs []*net.UDPAddr){
 	for _, memberAddr := range lobbyMembersAddrs{
-		listener.WriteTo([]byte(lobbyMembers), memberAddr)
+		listener.WriteTo([]byte(fmt.Sprintf("%s_%s", lobbyMembers, id)), memberAddr)
 	}
 }
 
@@ -76,13 +81,37 @@ func UpdateUser(request string, addr *net.UDPAddr, data *Data){
 	data.ExactClient[addr.String()] = strings.Split(request, "~/")[1]
 }
 
-func GetUsersInfo(lobbyID string, addr *net.UDPAddr, listener *net.UDPConn, data *Data){
+func GetUsersInfoLobby(lobbyID string, addr *net.UDPAddr, listener *net.UDPConn, id string, data *Data)error{
+	var usersInfo []string
+	values, _ := data.PreparingLobbies[lobbyID]
+	if len(values) == 0{
+		return errors.New(fmt.Sprintf("%s_lobby does not exist", id))
+	}
+
+	for _, value := range values{
+		usersInfo = append(usersInfo, data.ExactClient[value.String()])
+	}
+	formattedResp := fmt.Sprintf("%s_GetUsersInfoLobby///%s~/%s", id, lobbyID, strings.Join(usersInfo, "/::/"))
+	listener.WriteTo([]byte(formattedResp), addr)
+	return nil
+}
+
+func GetUsersInfo(lobbyID string, addr *net.UDPAddr, listener *net.UDPConn, id string, data *Data){
 	var usersInfo []string
 	for _, value := range data.ReadyLobbies[lobbyID]{
 		if value.String() != addr.String(){
 			usersInfo = append(usersInfo, data.ExactClient[value.String()])
 		}
 	}
-	formattedResp := fmt.Sprintf("GetUsersInfo///%s~/%s", lobbyID, strings.Join(usersInfo, "/::/"))
+	formattedResp := fmt.Sprintf("%s_GetUsersInfo///%s~/%s", id, lobbyID, strings.Join(usersInfo, "/::/"))
 	listener.WriteTo([]byte(formattedResp), addr)
+}
+
+func DeleteLobby(lobbyID string, addr *net.UDPAddr, listener *net.UDPConn, id string, data *Data){
+	delete(data.PreparingLobbies, lobbyID)
+	listener.WriteTo([]byte(fmt.Sprintf("%s_1", id)), addr)
+}
+
+func SendOK(addr *net.UDPAddr, listener *net.UDPConn, id string){
+	listener.WriteTo([]byte(fmt.Sprintf("%s_1", id)), addr)
 }

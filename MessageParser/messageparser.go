@@ -1,18 +1,9 @@
 package MessageParser
 
 import (
-	"strings"
 	"errors"
+	"strings"
 )
-
-// func checkClientExists(conn string)bool{
-// 	for _, value := range addrs{
-// 		if value.String() == conn{
-// 			return true
-// 		}
-// 	}
-// 	return false
-// }
 
 //Main checkers of request types
 
@@ -28,28 +19,41 @@ func (r reqCheck) checkReq(reqtype string) bool {
 	return false
 }
 
-func UnparseMessage(message string) (string, error) {
+func (r reqCheck) getId()string{
+	return strings.Split(r.request, "_")[0]
+}
+
+func UnparseMessage(message string) (string, string, error) {
 	reqCheck := reqCheck{request: message}
 	if reqCheck.checkReq("CreateLobby") {
-		return "CreateLobby", nil
+		return reqCheck.getId(), "CreateLobby", nil
 	}
 	if reqCheck.checkReq("AddToLobby") {
-		return "AddToLobby", nil
+		return reqCheck.getId(), "AddToLobby", nil
 	}
 	if reqCheck.checkReq("GetMembersInLobby") {
-		return "GetMembersInLobby", nil
+		return reqCheck.getId(), "GetMembersInLobby", nil
 	}
 	if reqCheck.checkReq("UpdateUser") {
-		return "UpdateUser", nil
+		return reqCheck.getId(), "UpdateUser", nil
 	}
 	if reqCheck.checkReq("GetUsersInfo"){
-		return "GetUsersInfo", nil
+		return reqCheck.getId(), "GetUsersInfo", nil
 	}
 	if reqCheck.checkReq("ClosePreparingLobby") {
-		return "ClosePreparingLobby", nil
+		return reqCheck.getId(), "ClosePreparingLobby", nil
+	}
+	if reqCheck.checkReq("OK"){
+		return reqCheck.getId() ,"OK", nil
+	}
+	if reqCheck.checkReq("GetUsersInfoLobby"){
+		return reqCheck.getId(), "GetUsersInfoLobby", nil
+	}
+	if reqCheck.checkReq("DeleteLobby"){
+		return reqCheck.getId(), "DeleteLobby", nil
 	}
 	if strings.Contains(reqCheck.request, "!_") {
-		return "", nil
+		return "", "", nil
 	}
-	return "error", errors.New("an error happened!")
+	return "error", "error", errors.New("an error happened")
 }

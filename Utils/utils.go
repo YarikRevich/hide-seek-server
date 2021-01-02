@@ -26,7 +26,7 @@ func GetLobbyNum(request string) string {
 	return strings.Join(cleanedID, "")
 }
 
-func SendErrorResponse(err error, listener *net.UDPConn, addr *net.UDPAddr) {
-	formattedResp := fmt.Sprintf("%s@%s", "error", err)
+func SendErrorResponse(err error, id string, listener *net.UDPConn, addr *net.UDPAddr) {
+	formattedResp := fmt.Sprintf("%s_%s@%s", id, "error", err)
 	listener.WriteTo([]byte(formattedResp), addr)
 }
