@@ -1,32 +1,34 @@
 package Utils
 
 import (
+	"fmt"
 	"net"
 	"strings"
-	"fmt"
+	"github.com/galsondor/go-ascii"
 )
 
 func GetLobbyNum(request string) string {
-	var notCleaned string
+	//Parses lobby id from body request for the futher actions
+
+	var lobbyNum string
 	parsedText := strings.Split(request, "///")
 	if len(parsedText) > 1 {
-		notCleaned = strings.Split(parsedText[1], "~")[0]
+		lobbyNum = strings.Split(parsedText[1], "~")[0]
 	} else {
-		notCleaned = parsedText[0]
+		lobbyNum = parsedText[0]
 	}
-	availableSymbols := []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
-	cleanedID := []string{}
-	for _, word := range notCleaned {
-		for _, avsym := range availableSymbols {
-			if string(word) == avsym {
-				cleanedID = append(cleanedID, string(word))
-			}
+	cleanedLobbyNum := []string{}
+	for _, word := range lobbyNum {
+		if ascii.IsPrint(byte(word)){
+			cleanedLobbyNum = append(cleanedLobbyNum, string(word))
 		}
 	}
-	return strings.Join(cleanedID, "")
+	return strings.Join(cleanedLobbyNum, "")
 }
 
 func SendErrorResponse(err error, id string, listener *net.UDPConn, addr *net.UDPAddr) {
+	//If someting went wrong server uses it to send error response
+
 	formattedResp := fmt.Sprintf("%s_%s@%s", id, "error", err)
 	listener.WriteTo([]byte(formattedResp), addr)
 }
