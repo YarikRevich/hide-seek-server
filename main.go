@@ -6,60 +6,46 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"GameServer/Utils"
 	C "GameServer/Components"
 	"GameServer/MessageParser"
 	"github.com/mbndr/figlet4go"
 )
 
-func ListenToCommands(request string, listener *net.UDPConn, addr *net.UDPAddr, data *C.Data){
+func ListenToCommands(request []byte, listener *net.UDPConn, addr *net.UDPAddr, data *C.Data){
 	//The main part of programm. Firstly it parses
 	//upcoming message and gets 'id' 'unparsedReq' and 'err'
 	//Id is the index of request. unparsedReq is the body of request
 	//itself. Err means when the request type is not supported.
-	
-	id, unparsedReq, err := MessageParser.UnparseMessage(request)
-	if err != nil {
-		Utils.SendErrorResponse(err, id, listener, addr)
-	}
-	lobbyID := Utils.GetLobbyNum(request)
-	switch unparsedReq{
+
+	parser := MessageParser.Parser(&MessageParser.Message{})
+	result := parser.Unparse(request)
+
+	C.UpdateExactUser(result[0], addr, data)
+
+	switch result[0].Type{
 	case "CreateLobby":
-		err := C.CreateLobby(lobbyID, id, data)
-		if err != nil {
-			Utils.SendErrorResponse(err, id, listener, addr)
-		}else{
-			C.SendOK(addr, listener, id)
-		}
+		code := C.CreateLobby(result[0], listener, addr, data)
+		C.SendAnswerS(result, code, listener, addr)
 	case "AddToLobby":
-		err := C.AddToLobby(lobbyID, request, addr, data)
-		if err != nil {
-			Utils.SendErrorResponse(err, id, listener, addr)
-		}else{
-			C.SendOK(addr, listener, id)
-		}
-	case "GetMembersInLobby":
-		lobbyMembers, lobbyMembersAddrs, err := C.GetMembersInLobby(lobbyID, data)
-		if err != nil {
-			Utils.SendErrorResponse(err, id, listener, addr)
-		}
-		C.SendLobbyMembers(listener, id, lobbyMembers, lobbyMembersAddrs)
-	case "UpdateUser":
-		C.UpdateUser(request, addr, data)
+		code := C.AddToLobby(result[0], listener, addr, data)
+		C.SendAnswerS(result, code, listener, addr)
 	case "ClosePreparingLobby":
-		C.ClosePreparingLobby(lobbyID, data)
-		C.SendOK(addr, listener, id)
-	case "GetUsersInfoLobby":
-		err := C.GetUsersInfoLobby(lobbyID, addr, listener, id, data)
-		if err != nil {
-			Utils.SendErrorResponse(err, id, listener, addr)
-		}
-	case "GetUsersInfo":
-		C.GetUsersInfo(lobbyID, addr, listener, id, data)
+		code := C.ClosePreparingLobby(result[0].PersonalInfo.LobbyID, data)
+		C.SendAnswerS(result, code, listener, addr)
+	case "GetUsersInfoPrepLobby":
+		usersInfo, code := C.GetUsersInfoPrepLobby(result[0], addr, listener, data)
+		C.SendAnswerS(usersInfo, code, listener, addr)
+	case "GetUsersInfoReadyLobby":
+		usersInfo, code := C.GetUsersInfoReadyLobby(result[0], addr, listener, data)
+		C.SendAnswerS(usersInfo, code, listener, addr)
+	case "UpdateUsersHealth":
+		usersInfo, code := C.UpdateUsersHealth(result[0], data)
+		C.SendAnswerS(usersInfo, code, listener, addr)
 	case "DeleteLobby":
-		C.DeleteLobby(lobbyID, addr, listener, id, data)
+		code := C.DeleteLobby(result[0].PersonalInfo.LobbyID, addr, listener, result[0].Networking.Index, data)
+		C.SendAnswerS(result, code, listener, addr)
 	case "OK":
-		C.SendOK(addr, listener, id)
+		C.SendAnswerS(result, "200", listener, addr)
 	}
 }
 
@@ -69,7 +55,7 @@ func Server(){
 	data := new(C.Data)
 	data.PreparingLobbies = make(map[string][]*net.UDPAddr)
 	data.ReadyLobbies = make(map[string][]*net.UDPAddr)
-	data.ExactClient = make(map[string]string)
+	data.ExactClient = make(map[string]*MessageParser.Message)
 
 	envaddr := os.Getenv("GAMESERVER_ADDR")
 	if len(envaddr) == 0{
@@ -92,16 +78,18 @@ func Server(){
 	DrawWelcomeMessage()
 
 	for{
-		buff := make([]byte, 4096)
-		var addr *net.UDPAddr
-		var num int
-		for{
-			num, addr, err = listener.ReadFromUDP(buff)
-			if !((err != nil && num == 0) || num == 0){
-				break
+		notCleanedBuff := make([]byte, 4096)
+		_, addr, err := listener.ReadFromUDP(notCleanedBuff)
+		if err != nil{
+			continue
+		}
+		var cleanedBuff []byte
+		for _, value := range notCleanedBuff{
+			if value != 0{
+				cleanedBuff = append(cleanedBuff, value)
 			}
 		}
-		ListenToCommands(string(buff), listener, addr, data)
+		ListenToCommands(cleanedBuff, listener, addr, data)
 	}
 }
 

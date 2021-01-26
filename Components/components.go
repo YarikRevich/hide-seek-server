@@ -1,10 +1,11 @@
 package Components
 
 import (
-	"net"
+	"GameServer/MessageParser"
 	"fmt"
-	"errors"
-	"strings"
+	"log"
+	"net"
+	"strconv"
 )
 
 type Data struct{
@@ -17,20 +18,25 @@ type Data struct{
 	ReadyLobbies map[string][]*net.UDPAddr
 
 	//Contains information about exact member of game
-	ExactClient map[string]string
+	//Each cell consists of for parts namely: the first one
+	//is user's position, the next one is the info of a game
+	//process, then goes some personal information and finally
+	//some metadata for animation work
+	ExactClient map[string]*MessageParser.Message
 }
 
-func CreateLobby(lobbyID string, id string, data *Data)error{
+func CreateLobby(result *MessageParser.Message, listener net.Conn, addr net.Addr, data *Data)string{
 	//When user wants to create a lobby he uses
 	//a create request and it uses this one
 
 	for key := range data.PreparingLobbies{
-		if key == lobbyID{
-			return errors.New(fmt.Sprintf("%s_such lobby already exists!", id))
+		if key == result.PersonalInfo.LobbyID{
+			return "502"
 		}
 	}
-	data.PreparingLobbies[lobbyID] = []*net.UDPAddr{}
-	return nil
+	data.PreparingLobbies[result.PersonalInfo.LobbyID] = []*net.UDPAddr{}
+
+	return "10"
 }
 
 func LobbyExists(lobbyID string, data *Data)bool{
@@ -44,110 +50,149 @@ func LobbyExists(lobbyID string, data *Data)bool{
 	return false
 }
 
-func AddToLobby(lobbyID string, request string, addr *net.UDPAddr, data *Data)error{
+func AddToLobby(result *MessageParser.Message, listener *net.UDPConn, addr *net.UDPAddr, data *Data)string{
 	//When user creates or joins any lobby he should
 	//be added to prepring lobbies' map. That's why
 	//this one adds user to it
 
-	value, _ := data.PreparingLobbies[lobbyID]
-	if !LobbyExists(lobbyID, data){
-		return errors.New("lobby does not exist")
+	value, _ := data.PreparingLobbies[result.PersonalInfo.LobbyID]
+	if !LobbyExists(result.PersonalInfo.LobbyID, data){
+		return "500"
 	}
 	for _, user := range value{
 		if addr.String() == user.String(){
-			return nil
+			return "501"
 		}
 	}
 	value = append(value, addr)
-	data.PreparingLobbies[lobbyID] = value
-	data.ExactClient[addr.String()] = strings.Split(request, "~/")[1]
-	return nil
+	data.PreparingLobbies[result.PersonalInfo.LobbyID] = value
+	data.ExactClient[addr.String()] = result
+
+	return "20"
 }
 
-func GetMembersInLobby(lobbyID string, data *Data)(string, []*net.UDPAddr, error){
-	lobbyMembers := []string{}
-	lobbyMembersAddrs := []*net.UDPAddr{}
-	for key := range data.PreparingLobbies{
-		if strings.Contains(key, lobbyID){
-			for _, value := range data.PreparingLobbies[key]{
-				lobbyMembers = append(lobbyMembers, value.String())
-				lobbyMembersAddrs = append(lobbyMembersAddrs, value)
-			}
-		}
-	}
-	if len(lobbyMembers) == 0{
-		return "", []*net.UDPAddr{}, errors.New("lobby does not exist")
-	}
-	lobbyMembersJoined := strings.Join(lobbyMembers, "//")
- 	return lobbyMembersJoined, lobbyMembersAddrs, nil
-}
-
-func SendLobbyMembers(listener *net.UDPConn, id string, lobbyMembers string, lobbyMembersAddrs []*net.UDPAddr){
+func SendLobbyMembers(listener *net.UDPConn, id int, lobbyMembers string, lobbyMembersAddrs []*net.UDPAddr){
 	//WARNING: it is deprecated!
 	
 	for _, memberAddr := range lobbyMembersAddrs{
-		listener.WriteTo([]byte(fmt.Sprintf("%s_%s", lobbyMembers, id)), memberAddr)
+		listener.WriteTo([]byte(fmt.Sprintf("%d_%s", lobbyMembers, id)), memberAddr)
 	}
 }
 
-func ClosePreparingLobby(lobbyID string, data *Data){
+func ClosePreparingLobby(lobbyID string, data *Data)string{
 	//When lobby-host wants to start the game he sends a request
 	//to close preparing lobby. It deletes lobby from preparing
 	//map and inserts it to the ready one
 
 	data.ReadyLobbies[lobbyID] = data.PreparingLobbies[lobbyID]
 	delete(data.PreparingLobbies, lobbyID)
+	return "50"
 }
 
-func UpdateUser(request string, addr *net.UDPAddr, data *Data){
+func UpdateUser(request *MessageParser.Message, addr *net.UDPAddr, data *Data)string{
 	//Updates internal user's data due to new comming data
 
-	data.ExactClient[addr.String()] = strings.Split(request, "~/")[1]
+	data.ExactClient[addr.String()] = request
+	return "40"
 }
 
-func GetUsersInfoLobby(lobbyID string, addr *net.UDPAddr, listener *net.UDPConn, id string, data *Data)error{
+func GetUsersInfoPrepLobby(result *MessageParser.Message, addr *net.UDPAddr, listener *net.UDPConn, data *Data)([]*MessageParser.Message, string){
 	//It is used when user is at the lobbywaitroom and he wants to get all
 	//the users in it and it even can show new users
 	
-	var usersInfo []string
-	values, _ := data.PreparingLobbies[lobbyID]
-	if len(values) == 0{
-		return errors.New("lobby does not exist")
+	var usersInfo []*MessageParser.Message
+	prep_values, _ := data.PreparingLobbies[result.PersonalInfo.LobbyID]
+
+	if len(prep_values) == 0{
+		usersInfo = append(usersInfo, result)
+		return usersInfo, "502"
 	}
 
-	for _, value := range values{
+	for _, value := range prep_values{
 		usersInfo = append(usersInfo, data.ExactClient[value.String()])
 	}
-	formattedResp := fmt.Sprintf("%s_GetUsersInfoLobby///%s~/%s", id, lobbyID, strings.Join(usersInfo, "/::/"))
-	listener.WriteTo([]byte(formattedResp), addr)
-	return nil
+
+	return usersInfo, "60"
 }
 
-func GetUsersInfo(lobbyID string, addr *net.UDPAddr, listener *net.UDPConn, id string, data *Data){
+func GetUsersInfoReadyLobby(result *MessageParser.Message, addr *net.UDPAddr, listener *net.UDPConn, data *Data)([]*MessageParser.Message, string){
 	//When lobby-host started a game each user gets information about others
 	//It sends all the newest information about all the users in lobby
 	
-	var usersInfo []string
-	for _, value := range data.ReadyLobbies[lobbyID]{
-		if value.String() != addr.String(){
+	var usersInfo []*MessageParser.Message
+
+	ready_values, _ := data.ReadyLobbies[result.PersonalInfo.LobbyID]
+	
+	if len(ready_values) == 0{
+		usersInfo = append(usersInfo, result)
+		return usersInfo, "502"
+	}
+
+	for _, value := range ready_values{
+		usersInfo = append(usersInfo, data.ExactClient[value.String()])
+	}
+	return usersInfo, "70"
+}
+
+func UpdateUsersHealth(result *MessageParser.Message, data *Data)([]*MessageParser.Message, string){
+	//Updates user's info about his health points
+
+	var usersInfo []*MessageParser.Message
+	ready_values, _ := data.ReadyLobbies[result.PersonalInfo.LobbyID]
+	for _, value := range ready_values{
+		if data.ExactClient[value.String()].PersonalInfo.Username == result.Context.Additional[0]{
+
+			hp, err := strconv.Atoi(result.Context.Additional[1])
+			if err != nil{
+				log.Fatalln(err)
+			}
+			data.ExactClient[value.String()].GameInfo.Health -= hp
 			usersInfo = append(usersInfo, data.ExactClient[value.String()])
 		}
 	}
-	formattedResp := fmt.Sprintf("%s_GetUsersInfo///%s~/%s", id, lobbyID, strings.Join(usersInfo, "/::/"))
-	listener.WriteTo([]byte(formattedResp), addr)
+	return usersInfo, "90"
+
 }
 
-func DeleteLobby(lobbyID string, addr *net.UDPAddr, listener *net.UDPConn, id string, data *Data){
+func DeleteLobby(lobbyID string, addr *net.UDPAddr, listener *net.UDPConn, id int, data *Data)string{
 	//Deletes lobby from preparing map
 	
 	delete(data.PreparingLobbies, lobbyID)
-	listener.WriteTo([]byte(fmt.Sprintf("%s_1", id)), addr)
+	delete(data.ReadyLobbies, lobbyID)
+	return "80"
 }
 
-func SendOK(addr *net.UDPAddr, listener *net.UDPConn, id string){
+func SendAnswerS(results []*MessageParser.Message, code string, listener *net.UDPConn, addr *net.UDPAddr){
+	
+	if results != nil{
+		for _, value := range results{
+			value.Error = code
+		}
+		parser := MessageParser.Parser(new(MessageParser.Message))
+		b := parser.ParseSeveral(results)
+		listener.WriteTo(b, addr)
+	}
+}
+
+func SendAnswer(result *MessageParser.Message, code string, listener *net.UDPConn, addr *net.UDPAddr){
 	//Main server wants to get all the available sub-servers
 	//That's why if server is here it sends ok response which
-	//contains only '1' as a good sign
+	//contains only '200' as a good sign
 
-	listener.WriteTo([]byte(fmt.Sprintf("%s_1", id)), addr)
+	result.Error = code
+	parser := MessageParser.Parser(new(MessageParser.Message))
+	b := parser.Parse(*result)
+	listener.WriteTo(b, addr)
+}
+
+func UpdateExactUser(result *MessageParser.Message, addr *net.UDPAddr, data *Data){
+	user, ok := data.ExactClient[addr.String()]
+	if ok{
+		user.Error = result.Error
+		user.Type = result.Type
+		user.Pos = result.Pos
+		user.PersonalInfo = result.PersonalInfo
+		user.Animation = result.Animation
+		user.Networking = result.Networking
+	}
 }
