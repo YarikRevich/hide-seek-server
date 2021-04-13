@@ -38,14 +38,19 @@ type Message struct{
 	}	`groups:"users"`
 	GameInfo        struct{ 
 		Health int	`groups:"users"`
-	}	`groups:"users"`
+		WeaponName string `groups:"users"`
+		WeaponRadius int `groups:"users"`
+ 	}	`groups:"users"`
 	PersonalInfo    struct{
 		LobbyID string	`groups:"users"`
 		Username string	`groups:"users"`
 		HeroPicture string	`groups:"users"`
 	}	`groups:"users"`
 	Animation       struct{
-		UpdationRun int	`groups:"users"`
+		HeroIconUpdation int	`groups:"users"`
+		HeroIconUpdationDelay int `groups:"users"`
+		WeaponIconUpdation int  `groups:"users"`
+		WeaponIconUpdationDelay int `groups:"users"`
 		CurrentFrame int	`groups:"users"`
 		CurrentFrameMatrix []float64	`groups:"users"`
 	}	`groups:"users"`

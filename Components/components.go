@@ -170,6 +170,7 @@ func SendAnswerS(results []*MessageParser.Message, code string, listener *net.UD
 		}
 		parser := MessageParser.Parser(new(MessageParser.Message))
 		b := parser.ParseSeveral(results)
+		fmt.Println(string(b), addr.String())
 		listener.WriteTo(b, addr)
 	}
 }
@@ -186,13 +187,15 @@ func SendAnswer(result *MessageParser.Message, code string, listener *net.UDPCon
 }
 
 func UpdateExactUser(result *MessageParser.Message, addr *net.UDPAddr, data *Data){
-	user, ok := data.ExactClient[addr.String()]
-	if ok{
-		user.Error = result.Error
-		user.Type = result.Type
-		user.Pos = result.Pos
-		user.PersonalInfo = result.PersonalInfo
-		user.Animation = result.Animation
-		user.Networking = result.Networking
+	if result.Type != "OK"{
+		user, ok := data.ExactClient[addr.String()]
+		if ok{
+			user.Error = result.Error
+			user.Type = result.Type
+			user.Pos = result.Pos
+			user.PersonalInfo = result.PersonalInfo
+			user.Animation = result.Animation
+			user.Networking = result.Networking
+		}
 	}
 }
