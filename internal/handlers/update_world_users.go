@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"time"
+
 	"github.com/YarikRevich/HideSeek-Server/internal/collection"
 	"github.com/google/uuid"
 )
@@ -17,7 +19,8 @@ func UpdateWorldUsersHandler(data interface{}) (interface{}, error) {
 		if !ok {
 			continue
 		}
-		r = append(r, v)
+		r = append(r, v.Data)
 	}
+	collection.World[worldID].Cache.Add(time.Minute * 5)
 	return r, nil
 }

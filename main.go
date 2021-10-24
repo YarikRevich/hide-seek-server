@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/YarikRevich/HideSeek-Server/internal/collection"
 	"github.com/YarikRevich/HideSeek-Server/internal/handlers"
 	"github.com/YarikRevich/HideSeek-Server/tools/printer"
 	"github.com/YarikRevich/game-networking/pkg/config"
@@ -54,6 +55,9 @@ func main(){
 	conn.AddHandler("reg_user", handlers.RegUser)
 	conn.AddHandler("reg_world", handlers.RegWorld)
 	conn.AddHandler("update_world_users", handlers.UpdateWorldUsersHandler)
+	conn.AddHandler("close_game_session", handlers.CloseGameSession)
 	
+	go collection.RunCacheLoop()
+
 	log.Fatalln(conn.WaitForInterrupt())
 }

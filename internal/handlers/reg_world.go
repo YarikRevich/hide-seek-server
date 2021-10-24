@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"time"
 
 	"github.com/YarikRevich/HideSeek-Server/internal/collection"
 	"github.com/google/uuid"
@@ -20,8 +21,8 @@ func RegWorld(data interface{}) (interface{}, error){
 	if err != nil{
 		return nil, err
 	}
-	collection.World[worldID] = struct{Data interface{}; Users []uuid.UUID}{
-		Data: worldData, Users: []uuid.UUID{userID},
+	collection.World[worldID] = struct{Data interface{}; Cache time.Time; Users []uuid.UUID}{
+		Data: worldData, Cache: time.Now().Add(time.Minute * 5), Users: []uuid.UUID{userID},
 	}
 	return nil, nil
 }

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"time"
+
 	"github.com/YarikRevich/HideSeek-Server/internal/collection"
 	"github.com/google/uuid"
 )
@@ -14,6 +16,8 @@ func RegUser(data interface{}) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	collection.User[id] = data
+	collection.User[id] = struct{Cache time.Time; Data interface{}}{
+		Cache: time.Now().Add(time.Minute * 5), Data: data,
+	}
 	return nil, nil
 }

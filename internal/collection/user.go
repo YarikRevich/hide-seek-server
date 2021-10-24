@@ -1,5 +1,12 @@
 package collection
 
-import "github.com/google/uuid"
+import (
+	"time"
 
-var User = map[uuid.UUID]interface{}{}
+	"github.com/google/uuid"
+)
+
+var User = map[uuid.UUID]struct{
+	Cache time.Time
+	Data interface{}
+}{}
