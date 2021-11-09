@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+option go_package="internal/api";
+///////////////////////
+message Element {
+    Object object = 1;
+};
+
+message Weapon {
+    Object object = 1;
+    string name = 2;
+    string radius = 3;
+};
+
+message Ammo {
+    Object object = 1;
+    int64 direction = 2;
+};
+
+message PC {
+    Object object = 1;
+
+    string username = 2;
+    uint64 health = 3;
+};
+
+message World {  
+    Object object = 1;
+    int64 regime = 2;
+};
+
+message Object {
+    Animation animation = 1;
+    Skin skin = 2;
+    Physics physics = 3;
+
+    int64 parentid = 4;
+    int64 id = 5;
+    
+    Position rawpos = 6;
+    Position spawn = 7;
+
+    int64 direction = 8;
+    int64 role = 10;
+};
+
+message Animation {
+    Position positionbeforeanimation = 1;
+    uint32 framecount = 2;
+    uint32 framedelaycounter = 3;
+    repeated double currentframematrix = 4;
+};
+
+message Skin {
+    string name = 1;
+    string path = 2;
+};
+
+message Physics {
+    repeated int64 jump = 1;
+};
+
+message Position {
+    int64 x = 1;
+    int64 y = 2;
+};
+
+message Status {
+    bool ok = 1;
+};
+
+message AddPCRequest {
+    string worldid = 1;
+    PC pc = 2;
+};
+
+message ChooseSpawnsRequest {
+    string worldid = 1;
+};
+
+message RemoveWorldRequest{
+    string worldid = 1;
+};
+
+service HideSeekServer {
+    rpc UploadWorldMetrics (World) returns (Status);
+    rpc AddPCToWorld (AddPCRequest) returns (Status);
+    rpc AddElementToWorld (AddPCRequest) returns (Status);
+    rpc AddWeaponToWorld (AddPCRequest) returns (Status);
+    rpc AddAmmoToWorld (AddPCRequest) returns (Status);
+    rpc ChooseSpawns (ChooseSpawnsRequest) returns (Status);
+    rpc RemoveWorld(RemoveWorldRequest) returns (Status);
+};
+////////////////////////////

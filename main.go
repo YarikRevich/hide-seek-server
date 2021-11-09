@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/YarikRevich/HideSeek-Server/internal/cache"
 	"github.com/YarikRevich/HideSeek-Server/internal/collection"
 	"github.com/YarikRevich/HideSeek-Server/internal/handlers"
 	"github.com/YarikRevich/HideSeek-Server/tools/printer"
@@ -44,7 +45,7 @@ func init(){
 	logrus.SetOutput(os.Stderr)
 	logrus.SetLevel(logrus.WarnLevel)
 
-	printer.PrintWelcomeMessage("HideSeek\nServer!")
+	printer.PrintWelcomeMessage()
 }
 
 func main(){
@@ -52,12 +53,13 @@ func main(){
 		IP: "127.0.0.1",
 		Port: "8090"})
 
-	conn.AddHandler("reg_user", handlers.RegUser)
-	conn.AddHandler("reg_world", handlers.RegWorld)
-	conn.AddHandler("update_world_users", handlers.UpdateWorldUsersHandler)
+	// conn.AddHandler("reg_user", handlers.RegUser)
+	// conn.AddHandler("reg_world", handlers.RegWorld)
+	conn.AddHandler("update_world", handlers.UpdateWorldHandler)
 	conn.AddHandler("close_game_session", handlers.CloseGameSession)
+	conn.AddHandler("init_world_user_spawns", handlers.InitWorldUserSpawns)
 	
-	go collection.RunCacheLoop()
+	cache.UseCache().Start()
 
 	log.Fatalln(conn.WaitForInterrupt())
 }

@@ -7,14 +7,15 @@ import (
 	"github.com/mbndr/figlet4go"
 )
 
-func PrintWelcomeMessage(m string) {
+//Prints welcome message when server is run
+func PrintWelcomeMessage() {
 	renderer := figlet4go.NewAsciiRender()
 	options := figlet4go.NewRenderOptions()
 	options.FontColor = []figlet4go.Color{
 		figlet4go.ColorGreen,
 	}
 
-	for _, v := range strings.Split(m, "\n") {
+	for _, v := range strings.Split("HideSeek\nServer!", "\n") {
 		text, err := renderer.RenderOpts(v, options)
 		if err != nil {
 			panic(err)

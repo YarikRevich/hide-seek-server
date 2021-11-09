@@ -9,5 +9,8 @@ import (
 var World = map[uuid.UUID]struct {
 	Data interface{}
 	Cache time.Time
-	Users []uuid.UUID
+	PCs []interface{}
+	Elements interface{}
 }{}
+
+
