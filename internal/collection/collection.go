@@ -1,37 +1,42 @@
 package collection
 
-import "github.com/google/uuid"
+import (
+	"github.com/YarikRevich/HideSeek-Server/internal/api"
+	// "github.com/google/uuid"
+)
 
 var instance *Collection
 
-type Collection struct {
-	worlds map[uuid.UUID]interface{}
-	pcs map[uuid.UUID]interface{}
-	elements map[uuid.UUID]interface{}
-	weapons map[uuid.UUID]interface{}
-	ammo map[uuid.UUID]interface{}
+type Game struct {
+	Started bool
 }
 
-// func 
+type Collection struct {
+	Games map[string]Game
+	Worlds map[string]*api.World
+	PCs map[string]map[string]*api.PC
+	Elements map[string]map[string]*api.Element
+	Weapons map[string]map[string]*api.Weapon
+	Ammo map[string]map[string]*api.Ammo
+}
 
-// func (c *Collection) Delete()
-
-func (c *Collection) CleanDataByUUID(u uuid.UUID){
-	delete(c.worlds, u)
-	delete(c.pcs, u)
-	delete(c.elements, u)
-	delete(c.weapons, u)
-	delete(c.ammo, u)
+func (c *Collection) CleanDataByUUID(u string){
+	delete(c.Worlds, u)
+	delete(c.PCs, u)
+	delete(c.Elements, u)
+	delete(c.Weapons, u)
+	delete(c.Ammo, u)
 }
 
 func UseCollection() *Collection{
 	if instance == nil{
 		instance = &Collection{
-			worlds: make(map[uuid.UUID]interface{}),
-			pcs: make(map[uuid.UUID]interface{}),
-			elements: make(map[uuid.UUID]interface{}),
-			weapons: make(map[uuid.UUID]interface{}),
-			ammo: make(map[uuid.UUID]interface{}),
+			Games: make(map[string]Game),
+			Worlds: make(map[string]*api.World),
+			PCs: make(map[string]map[string]*api.PC),
+			Elements: make(map[string]map[string]*api.Element),
+			Weapons: make(map[string]map[string]*api.Weapon),
+			Ammo: make(map[string]map[string]*api.Ammo),
 		}
 	}
 	return instance

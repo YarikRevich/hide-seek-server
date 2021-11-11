@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 option go_package="internal/api";
+
 ///////////////////////
 message Element {
     Object object = 1;
@@ -34,21 +35,22 @@ message Object {
     Skin skin = 2;
     Physics physics = 3;
 
-    int64 parentid = 4;
-    int64 id = 5;
+    string worldId = 4;
+    string parentId = 5;
+    string id = 6;
     
-    Position rawpos = 6;
-    Position spawn = 7;
+    Position rawPos = 7;
+    Position spawn = 8;
 
-    int64 direction = 8;
+    int64 direction = 9;
     int64 role = 10;
 };
 
 message Animation {
-    Position positionbeforeanimation = 1;
-    uint32 framecount = 2;
-    uint32 framedelaycounter = 3;
-    repeated double currentframematrix = 4;
+    Position positionBeforeAnimation = 1;
+    uint32 frameCount = 2;
+    uint32 frameDelayCounter = 3;
+    repeated double currentFrameMatrix = 4;
 };
 
 message Skin {
@@ -61,34 +63,69 @@ message Physics {
 };
 
 message Position {
-    int64 x = 1;
-    int64 y = 2;
+    double x = 1;
+    double y = 2;
 };
 
 message Status {
     bool ok = 1;
 };
 
-message AddPCRequest {
-    string worldid = 1;
-    PC pc = 2;
-};
-
 message ChooseSpawnsRequest {
-    string worldid = 1;
+    string worldId = 1;
 };
 
 message RemoveWorldRequest{
-    string worldid = 1;
+    string worldId = 1;
 };
 
-service HideSeekServer {
-    rpc UploadWorldMetrics (World) returns (Status);
-    rpc AddPCToWorld (AddPCRequest) returns (Status);
-    rpc AddElementToWorld (AddPCRequest) returns (Status);
-    rpc AddWeaponToWorld (AddPCRequest) returns (Status);
-    rpc AddAmmoToWorld (AddPCRequest) returns (Status);
+message WorldObjectsRequest{
+    string worldId = 1;  
+};
+
+message WorldObjectsResponse {
+    repeated PC PCs = 1;
+    repeated Element elements = 2;
+    repeated Weapon weapons = 3;
+    repeated Ammo ammos = 4;
+};
+
+message RemovePCRequest{
+    string worldId = 1;
+    string pcId = 2;
+};
+
+message SetGameStartedRequest {
+    string worldId = 1;
+};
+
+message IsGameStartedRequest{
+    string worldId = 1;
+};
+
+message IsGameStartedResponse{ 
+    bool started = 1;
+};
+
+service HideSeek {
+    rpc AddWorld (World) returns (Status);
+    rpc AddPC (PC) returns (Status);
+
+    rpc AddElement (Element) returns (Status);
+    rpc AddWeapon (Weapon) returns (Status);
+    rpc AddAmmo (Ammo) returns (Status);
+    
+    rpc UpdatePC(PC) returns (Status);
+    rpc UpdateAmmo(Ammo) returns (Status);
+    
     rpc ChooseSpawns (ChooseSpawnsRequest) returns (Status);
+
     rpc RemoveWorld(RemoveWorldRequest) returns (Status);
+    rpc RemovePC (RemovePCRequest) returns (Status);
+  
+    rpc GetWorldObjects(WorldObjectsRequest) returns (WorldObjectsResponse);
+
+    rpc SetGameStarted(SetGameStartedRequest) returns (Status);
+    rpc IsGameStarted(IsGameStartedRequest) returns (IsGameStartedResponse);
 };
 ////////////////////////////

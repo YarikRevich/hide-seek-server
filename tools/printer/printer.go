@@ -22,6 +22,5 @@ func PrintWelcomeMessage() {
 		}
 
 		fmt.Print(text)
-
 	}
 }

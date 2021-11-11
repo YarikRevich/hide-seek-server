@@ -1,15 +1,20 @@
 package main
 
 import (
-	"log"
+	"net"
 	"os"
 
 	"github.com/YarikRevich/HideSeek-Server/internal/cache"
-	"github.com/YarikRevich/HideSeek-Server/internal/collection"
-	"github.com/YarikRevich/HideSeek-Server/internal/handlers"
+	"github.com/YarikRevich/HideSeek-Server/internal/interceptors"
+	// "github.com/YarikRevich/HideSeek-Server/internal/collection"
+	// "github.com/YarikRevich/HideSeek-Server/internal/handlers"
+	"github.com/YarikRevich/HideSeek-Server/internal/api"
+	"github.com/YarikRevich/HideSeek-Server/internal/server"
 	"github.com/YarikRevich/HideSeek-Server/tools/printer"
-	"github.com/YarikRevich/game-networking/pkg/config"
-	"github.com/YarikRevich/game-networking/pkg/server"
+	"google.golang.org/grpc"
+
+	// "github.com/YarikRevich/game-networking/pkg/config"
+	// "github.com/YarikRevich/game-networking/pkg/server"
 	"github.com/sirupsen/logrus"
 )
 
@@ -49,17 +54,31 @@ func init(){
 }
 
 func main(){
-	conn := server.Listen(config.Config{
-		IP: "127.0.0.1",
-		Port: "8090"})
+	conn, err := net.Listen("tcp", ":8090")
+	if err != nil{
+		logrus.Fatal(err)
+	}
 
-	// conn.AddHandler("reg_user", handlers.RegUser)
-	// conn.AddHandler("reg_world", handlers.RegWorld)
-	conn.AddHandler("update_world", handlers.UpdateWorldHandler)
-	conn.AddHandler("close_game_session", handlers.CloseGameSession)
-	conn.AddHandler("init_world_user_spawns", handlers.InitWorldUserSpawns)
-	
+	opts := []grpc.ServerOption{
+		grpc.ChainUnaryInterceptor(interceptors.NewInterceptors().Get()...)}
+	s := grpc.NewServer(opts...)
+
 	cache.UseCache().Start()
 
-	log.Fatalln(conn.WaitForInterrupt())
+	api.RegisterHideSeekServer(s, server.NewApiServer())
+	s.Serve(conn)
+
+	// conn := server.Listen(config.Config{
+	// 	IP: "127.0.0.1",
+	// 	Port: "8090"})
+
+	// // conn.AddHandler("reg_user", handlers.RegUser)
+	// // conn.AddHandler("reg_world", handlers.RegWorld)
+	// conn.AddHandler("update_world", handlers.UpdateWorldHandler)
+	// conn.AddHandler("close_game_session", handlers.CloseGameSession)
+	// conn.AddHandler("init_world_user_spawns", handlers.InitWorldUserSpawns)
+	
+
+
+	// log.Fatalln(conn.WaitForInterrupt())
 }
