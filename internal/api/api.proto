@@ -107,6 +107,10 @@ message IsGameStartedResponse{
     bool started = 1;
 };
 
+message GetWorldRequest{
+    string worldId = 1;
+};
+
 service HideSeek {
     rpc AddWorld (World) returns (Status);
     rpc AddPC (PC) returns (Status);
@@ -117,6 +121,7 @@ service HideSeek {
     
     rpc UpdatePC(PC) returns (Status);
     rpc UpdateAmmo(Ammo) returns (Status);
+    rpc GetWorld(GetWorldRequest) returns (World);
     
     rpc ChooseSpawns (ChooseSpawnsRequest) returns (Status);
 

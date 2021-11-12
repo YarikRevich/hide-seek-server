@@ -1,6 +1,8 @@
 package collection
 
 import (
+	"time"
+
 	"github.com/YarikRevich/HideSeek-Server/internal/api"
 	// "github.com/google/uuid"
 )
@@ -11,10 +13,15 @@ type Game struct {
 	Started bool
 }
 
+type PC struct {
+	Data *api.PC
+	AddTime time.Time
+}
+
 type Collection struct {
 	Games map[string]Game
 	Worlds map[string]*api.World
-	PCs map[string]map[string]*api.PC
+	PCs map[string]map[string]*PC
 	Elements map[string]map[string]*api.Element
 	Weapons map[string]map[string]*api.Weapon
 	Ammo map[string]map[string]*api.Ammo
@@ -33,7 +40,7 @@ func UseCollection() *Collection{
 		instance = &Collection{
 			Games: make(map[string]Game),
 			Worlds: make(map[string]*api.World),
-			PCs: make(map[string]map[string]*api.PC),
+			PCs: make(map[string]map[string]*PC),
 			Elements: make(map[string]map[string]*api.Element),
 			Weapons: make(map[string]map[string]*api.Weapon),
 			Ammo: make(map[string]map[string]*api.Ammo),

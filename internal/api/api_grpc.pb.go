@@ -25,6 +25,7 @@ type HideSeekClient interface {
 	AddAmmo(ctx context.Context, in *Ammo, opts ...grpc.CallOption) (*Status, error)
 	UpdatePC(ctx context.Context, in *PC, opts ...grpc.CallOption) (*Status, error)
 	UpdateAmmo(ctx context.Context, in *Ammo, opts ...grpc.CallOption) (*Status, error)
+	GetWorld(ctx context.Context, in *GetWorldRequest, opts ...grpc.CallOption) (*World, error)
 	ChooseSpawns(ctx context.Context, in *ChooseSpawnsRequest, opts ...grpc.CallOption) (*Status, error)
 	RemoveWorld(ctx context.Context, in *RemoveWorldRequest, opts ...grpc.CallOption) (*Status, error)
 	RemovePC(ctx context.Context, in *RemovePCRequest, opts ...grpc.CallOption) (*Status, error)
@@ -104,6 +105,15 @@ func (c *hideSeekClient) UpdateAmmo(ctx context.Context, in *Ammo, opts ...grpc.
 	return out, nil
 }
 
+func (c *hideSeekClient) GetWorld(ctx context.Context, in *GetWorldRequest, opts ...grpc.CallOption) (*World, error) {
+	out := new(World)
+	err := c.cc.Invoke(ctx, "/HideSeek/GetWorld", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *hideSeekClient) ChooseSpawns(ctx context.Context, in *ChooseSpawnsRequest, opts ...grpc.CallOption) (*Status, error) {
 	out := new(Status)
 	err := c.cc.Invoke(ctx, "/HideSeek/ChooseSpawns", in, out, opts...)
@@ -169,6 +179,7 @@ type HideSeekServer interface {
 	AddAmmo(context.Context, *Ammo) (*Status, error)
 	UpdatePC(context.Context, *PC) (*Status, error)
 	UpdateAmmo(context.Context, *Ammo) (*Status, error)
+	GetWorld(context.Context, *GetWorldRequest) (*World, error)
 	ChooseSpawns(context.Context, *ChooseSpawnsRequest) (*Status, error)
 	RemoveWorld(context.Context, *RemoveWorldRequest) (*Status, error)
 	RemovePC(context.Context, *RemovePCRequest) (*Status, error)
@@ -202,6 +213,9 @@ func (UnimplementedHideSeekServer) UpdatePC(context.Context, *PC) (*Status, erro
 }
 func (UnimplementedHideSeekServer) UpdateAmmo(context.Context, *Ammo) (*Status, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateAmmo not implemented")
+}
+func (UnimplementedHideSeekServer) GetWorld(context.Context, *GetWorldRequest) (*World, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWorld not implemented")
 }
 func (UnimplementedHideSeekServer) ChooseSpawns(context.Context, *ChooseSpawnsRequest) (*Status, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChooseSpawns not implemented")
@@ -360,6 +374,24 @@ func _HideSeek_UpdateAmmo_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HideSeek_GetWorld_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetWorldRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HideSeekServer).GetWorld(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/HideSeek/GetWorld",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HideSeekServer).GetWorld(ctx, req.(*GetWorldRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _HideSeek_ChooseSpawns_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChooseSpawnsRequest)
 	if err := dec(in); err != nil {
@@ -502,6 +534,10 @@ var HideSeek_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateAmmo",
 			Handler:    _HideSeek_UpdateAmmo_Handler,
+		},
+		{
+			MethodName: "GetWorld",
+			Handler:    _HideSeek_GetWorld_Handler,
 		},
 		{
 			MethodName: "ChooseSpawns",

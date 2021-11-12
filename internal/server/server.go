@@ -2,9 +2,10 @@ package server
 
 import (
 	"context"
+	"sort"
+	"time"
 
 	"github.com/YarikRevich/HideSeek-Server/internal/api"
-	// "github.com/YarikRevich/HideSeek-Server/internal/cache"
 	"github.com/YarikRevich/HideSeek-Server/internal/collection"
 	// "github.com/YarikRevich/HideSeek-Server/internal/collection"
 )
@@ -22,9 +23,10 @@ func (a *ApiServer) AddWorld(ctx context.Context, r *api.World) (*api.Status, er
 func (a *ApiServer) AddPC(ctx context.Context, r *api.PC) (*api.Status, error) {
 	c := collection.UseCollection()
 	if _, ok := c.PCs[r.Object.WorldId]; !ok {
-		c.PCs[r.Object.WorldId] = make(map[string]*api.PC)
+		c.PCs[r.Object.WorldId] = make(map[string]*collection.PC)
 	}
-	c.PCs[r.Object.WorldId][r.Object.Id] = r
+
+	c.PCs[r.Object.WorldId][r.Object.Id] = &collection.PC{r, time.Now()}
 	return &api.Status{Ok: true}, nil
 }
 
@@ -57,9 +59,17 @@ func (a *ApiServer) GetWorldObjects(ctx context.Context, r *api.WorldObjectsRequ
 		elements = append(elements, v)
 	}
 
-	var pcs []*api.PC
+	var fullPCs []*collection.PC
 	for _, v := range c.PCs[r.WorldId] {
-		pcs = append(pcs, v)
+		fullPCs = append(fullPCs, v)
+	}
+	sort.Slice(fullPCs, func(i, j int)bool{
+		return fullPCs[i].AddTime.Before(fullPCs[j].AddTime)
+	})
+
+	var pcs []*api.PC
+	for _, v := range fullPCs{
+		pcs = append(pcs, v.Data)
 	}
 
 	var ammo []*api.Ammo
@@ -77,7 +87,7 @@ func (a *ApiServer) GetWorldObjects(ctx context.Context, r *api.WorldObjectsRequ
 
 func (a *ApiServer) UpdatePC(ctx context.Context, r *api.PC) (*api.Status, error) {
 	c := collection.UseCollection()
-	c.PCs[r.Object.WorldId][r.Object.Id] = r
+	c.PCs[r.Object.WorldId][r.Object.Id].Data = r
 	return &api.Status{Ok: true}, nil
 }
 
@@ -89,7 +99,7 @@ func (a *ApiServer) UpdateAmmo(ctx context.Context, r *api.Ammo) (*api.Status, e
 
 func (a *ApiServer) RemoveWorld(ctx context.Context, r *api.RemoveWorldRequest) (*api.Status, error) {
 	c := collection.UseCollection()
-	delete(c.PCs[r.WorldId], r.WorldId)
+	delete(c.Worlds, r.WorldId)
 	return &api.Status{Ok: true}, nil
 }
 
@@ -107,10 +117,15 @@ func (a *ApiServer) SetGameStarted(ctx context.Context, r *api.SetGameStartedReq
 
 func (a *ApiServer) IsGameStarted(ctx context.Context, r *api.IsGameStartedRequest) (*api.IsGameStartedResponse, error) {
 	c := collection.UseCollection()
-	if g, ok := c.Games[r.WorldId]; ok{
+	if g, ok := c.Games[r.WorldId]; ok {
 		return &api.IsGameStartedResponse{Started: g.Started}, nil
 	}
 	return &api.IsGameStartedResponse{Started: false}, nil
+}
+
+func (a *ApiServer) GetWorld(ctx context.Context, r *api.GetWorldRequest)(*api.World, error){
+	c := collection.UseCollection()
+	return c.Worlds[r.WorldId], nil
 }
 
 func NewApiServer() *ApiServer {
