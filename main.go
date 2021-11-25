@@ -4,18 +4,14 @@ import (
 	"net"
 	"os"
 
+	externalapiimp "github.com/YarikRevich/HideSeek-Server/internal/api/external-api/v1/implementation"
+	externalapiproto "github.com/YarikRevich/HideSeek-Server/internal/api/external-api/v1/proto"
 	"github.com/YarikRevich/HideSeek-Server/internal/cache"
 	"github.com/YarikRevich/HideSeek-Server/internal/interceptors"
-	// "github.com/YarikRevich/HideSeek-Server/internal/collection"
-	// "github.com/YarikRevich/HideSeek-Server/internal/handlers"
-	"github.com/YarikRevich/HideSeek-Server/internal/api"
-	"github.com/YarikRevich/HideSeek-Server/internal/server"
 	"github.com/YarikRevich/HideSeek-Server/tools/printer"
-	"google.golang.org/grpc"
-
-	// "github.com/YarikRevich/game-networking/pkg/config"
-	// "github.com/YarikRevich/game-networking/pkg/server"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/encoding/gzip"
 )
 
 // 	switch result[0].Type{
@@ -44,41 +40,28 @@ import (
 // 		C.SendAnswerS(result, "200", listener, addr)
 // 	}
 
-func init(){
+func init() {
 	logrus.SetFormatter(logrus.StandardLogger().Formatter)
-	
+
 	logrus.SetOutput(os.Stderr)
 	logrus.SetLevel(logrus.WarnLevel)
 
 	printer.PrintWelcomeMessage()
 }
 
-func main(){
+func main() {
 	conn, err := net.Listen("tcp", ":8090")
-	if err != nil{
+	if err != nil {
 		logrus.Fatal(err)
 	}
 
 	opts := []grpc.ServerOption{
-		grpc.ChainUnaryInterceptor(interceptors.NewInterceptors().Get()...)}
+		grpc.ChainUnaryInterceptor(interceptors.NewInterceptorManager())}
 	s := grpc.NewServer(opts...)
 
-	cache.UseCache().Start()
+	grpc.UseCompressor(gzip.Name)
+	cache.UseCache()
 
-	api.RegisterHideSeekServer(s, server.NewApiServer())
+	externalapiproto.RegisterExternalServiceServer(s, externalapiimp.NewExternalService())
 	s.Serve(conn)
-
-	// conn := server.Listen(config.Config{
-	// 	IP: "127.0.0.1",
-	// 	Port: "8090"})
-
-	// // conn.AddHandler("reg_user", handlers.RegUser)
-	// // conn.AddHandler("reg_world", handlers.RegWorld)
-	// conn.AddHandler("update_world", handlers.UpdateWorldHandler)
-	// conn.AddHandler("close_game_session", handlers.CloseGameSession)
-	// conn.AddHandler("init_world_user_spawns", handlers.InitWorldUserSpawns)
-	
-
-
-	// log.Fatalln(conn.WaitForInterrupt())
 }

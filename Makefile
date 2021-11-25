@@ -1,10 +1,16 @@
 .PHONY: all build install
 
-all: build install
+all: gen_api build install 
 
-gen_proto:
-	@protoc -I internal/api --go_out=. api.proto
-	@protoc -I internal/api --go-grpc_out=. api.proto
+API_VERSION := v1
+API_TYPE := external
+
+gen_api:
+	@protoc -I internal/api/$(API_TYPE)-api/$(API_VERSION)/proto --go_out=. api.proto
+	@protoc -I internal/api/$(API_TYPE)-api/$(API_VERSION)/proto --go-grpc_out=. api.proto
+
+test:
+	@go test ./... 
 
 build:
 	@go build
