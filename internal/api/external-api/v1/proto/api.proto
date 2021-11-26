@@ -12,6 +12,7 @@ message World {
 
 message GameSettings {
     Regime regime = 1;
+    bool isGameStarted = 2;
 };
 
 message Regime {};

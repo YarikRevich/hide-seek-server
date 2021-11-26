@@ -2,6 +2,7 @@ package imlementation
 
 import (
 	"context"
+	"fmt"
 	"sort"
 
 	// "sort"
@@ -33,15 +34,16 @@ func (a *ExternalService) AddWorld(ctx context.Context, r *proto.World) (*proto.
 }
 
 func (a *ExternalService) AddMap(ctx context.Context, r *proto.Map) (*proto.Status, error) {
-	storage.UseStorage().MapStorage.Add(r.Base.GetId(), r)
+	storage.UseStorage().MapStorage.Add(r.Base.Parent.GetId(), r)
 	return &proto.Status{Ok: true}, nil
 }
 
 func (a *ExternalService) AddPC(ctx context.Context, r *proto.PC) (*proto.Status, error) {
 	s := storage.UseStorage().PCStorage
 
+	fmt.Println(r.Base.Parent.Id)
 	r.LobbyNumber = int64(s.Length() + 1)
-	s.Add(r.Base.GetId(), r)
+	s.Add(r.Base.Parent.GetId(), r)
 	return &proto.Status{Ok: true}, nil
 }
 
@@ -57,48 +59,37 @@ func (a *ExternalService) AddAmmo(ctx context.Context, r *proto.Ammo) (*proto.St
 	return nil, nil
 }
 
-func (a *ApiServer) ChooseSpawns(ctx context.Context, r *ChooseSpawnsRequest) (*Status, error) {
+func (a *ExternalService) ChooseSpawns(ctx context.Context, r *proto.ChooseSpawnsRequest) (*proto.Status, error) {
 	return nil, nil
 }
 
 func (a *ExternalService) GetWorldProperty(ctx context.Context, worldID *wrappers.StringValue) (*proto.GetWorldPropertyResponse, error) {
 	s := storage.UseStorage().ExternalApiStorage
 
-	var pcs externalapistorage.PCs
-	copy(pcs, s.PCStorage[worldID.Value])
+	var copyPCs externalapistorage.PCs
+	copy(copyPCs, s.PCStorage.Get(worldID.Value))
 
-	sort.Slice(pcs, func(i, j int) bool {
-		return pcs[i].GetLobbyNumber() < pcs[j].GetLobbyNumber()
+	sort.Slice(copyPCs, func(i, j int) bool {
+		return copyPCs[i].GetLobbyNumber() < copyPCs[j].GetLobbyNumber()
 	})
-
-	ammos, err := s.AmmoStorage.Get(worldID.Value)
-	if err != nil {
-		return nil, err
-	}
 
 	return &proto.GetWorldPropertyResponse{
 		Weapons:  s.WeaponStorage.Get(worldID.Value),
 		Elements: s.ElementStorage.Get(worldID.Value),
-		Ammos:    ammos,
-		PCs:      pcs,
+		Ammos:    s.AmmoStorage.Get(worldID.Value),
+		PCs:      copyPCs,
 	}, nil
 }
 
 func (a *ExternalService) UpdatePC(ctx context.Context, r *proto.PC) (*proto.Status, error) {
-	v, err := storage.UseStorage().PCStorage.Get(r.Base.GetId())
-	if err != nil {
-		return nil, err
-	}
+	v := storage.UseStorage().PCStorage.Get(r.Base.GetId())
 	v.Remove(r)
 	v.Add(r)
 	return &proto.Status{Ok: true}, nil
 }
 
 func (a *ExternalService) UpdateAmmo(ctx context.Context, r *proto.Ammo) (*proto.Status, error) {
-	v, err := storage.UseStorage().AmmoStorage.Get(r.Base.GetId())
-	if err != nil {
-		return nil, err
-	}
+	v := storage.UseStorage().AmmoStorage.Get(r.Base.GetId())
 	v.Remove(r)
 	v.Add(r)
 	return &proto.Status{Ok: true}, nil

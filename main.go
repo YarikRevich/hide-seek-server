@@ -8,6 +8,8 @@ import (
 	externalapiproto "github.com/YarikRevich/HideSeek-Server/internal/api/external-api/v1/proto"
 	"github.com/YarikRevich/HideSeek-Server/internal/cache"
 	"github.com/YarikRevich/HideSeek-Server/internal/interceptors"
+
+	// "github.com/YarikRevich/HideSeek-Server/internal/monitoring"
 	"github.com/YarikRevich/HideSeek-Server/tools/printer"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -44,7 +46,7 @@ func init() {
 	logrus.SetFormatter(logrus.StandardLogger().Formatter)
 
 	logrus.SetOutput(os.Stderr)
-	logrus.SetLevel(logrus.WarnLevel)
+	logrus.SetLevel(logrus.InfoLevel)
 
 	printer.PrintWelcomeMessage()
 }
@@ -55,8 +57,15 @@ func main() {
 		logrus.Fatal(err)
 	}
 
+	// m := monitoring.UseMonitoring()
+	// m.Init()
+
+	// m.NewPrometheusInterceptor()
+
 	opts := []grpc.ServerOption{
-		grpc.ChainUnaryInterceptor(interceptors.NewInterceptorManager())}
+		grpc.ChainUnaryInterceptor(
+			interceptors.NewInterceptorManager(),
+		)}
 	s := grpc.NewServer(opts...)
 
 	grpc.UseCompressor(gzip.Name)

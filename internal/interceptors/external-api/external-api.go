@@ -3,12 +3,14 @@ package externalapiinterceptor
 import (
 	"context"
 
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
 
 type ExternalApiInterceptor struct{}
 
 func (eai *ExternalApiInterceptor) Use(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	logrus.Info(info.FullMethod, info.Server)
 	return handler(ctx, req)
 }
 
