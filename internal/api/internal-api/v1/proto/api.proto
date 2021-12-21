@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-option go_package = "internal/api/internal-api/v1/proto";
-
-service InternalService{
-
-};

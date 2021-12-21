@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option go_package="internal/api/internal-api/v1/proto";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+service InternalService {
+    rpc IsAlive(google.protobuf.Empty) returns (google.protobuf.BoolValue);
+};

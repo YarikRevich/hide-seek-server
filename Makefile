@@ -1,13 +1,13 @@
-.PHONY: all build install
+.PHONY: default help test build install
 
-all: gen_api build install 
+default: help
 
-API_VERSION := v1
-API_TYPE := external
+help: 
+	@echo "It works"
 
-gen_api:
-	@protoc -I internal/api/$(API_TYPE)-api/$(API_VERSION)/proto --go_out=. api.proto
-	@protoc -I internal/api/$(API_TYPE)-api/$(API_VERSION)/proto --go-grpc_out=. api.proto
+gen_proto:
+	@protoc -I api --go_out=. external.proto internal.proto
+	@protoc -I api --go-grpc_out=. external.proto internal.proto
 
 test:
 	@go test ./... 
