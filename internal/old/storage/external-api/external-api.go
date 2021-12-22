@@ -6,7 +6,7 @@ import (
 	externalapiproto "github.com/YarikRevich/HideSeek-Server/internal/api/external-api/v1/proto"
 )
 
-var ErrExternalStorageValueDoesNotExist = errors.New("error in external storage does not exist")
+// var ErrExternalStorageValueDoesNotExist = errors.New("error in external storage does not exist")
 
 type PCs []*externalapiproto.PC
 type Weapons []*externalapiproto.Weapon

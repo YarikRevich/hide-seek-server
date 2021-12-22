@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"math/rand"
 	"net"
 	"os"
@@ -11,9 +12,9 @@ import (
 	externalapiproto "github.com/YarikRevich/HideSeek-Server/internal/api/external-api/v1/proto"
 	"github.com/YarikRevich/HideSeek-Server/internal/cache"
 	"github.com/YarikRevich/HideSeek-Server/internal/interceptors"
+	"github.com/YarikRevich/HideSeek-Server/internal/monitoring"
 	"github.com/YarikRevich/go-demonizer/pkg/demonizer"
 
-	// "github.com/YarikRevich/HideSeek-Server/internal/monitoring"
 	"github.com/YarikRevich/HideSeek-Server/tools/params"
 	"github.com/YarikRevich/HideSeek-Server/tools/printer"
 	"github.com/sirupsen/logrus"
@@ -26,7 +27,7 @@ func init() {
 
 	flag.Parse()
 
-	if params.GetDemon() {
+	if params.IsDemon() {
 		demonizer.DemonizeThisProcess()
 	}
 
@@ -39,15 +40,12 @@ func init() {
 }
 
 func main() {
-	conn, err := net.Listen("tcp", ":8090")
+	conn, err := net.Listen("tcp", fmt.Sprintf("%s:%s", params.GetServerIP(), params.GetServerPort()))
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
-	// m := monitoring.UseMonitoring()
-	// m.Init()
-
-	// m.NewPrometheusInterceptor()
+	monitoring.UseMonitoring().ListenAndServe()
 
 	opts := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
