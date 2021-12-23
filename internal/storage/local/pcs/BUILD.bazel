@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "pcs",
+    srcs = ["pcs.go"],
+    importpath = "github.com/YarikRevich/HideSeek-Server/internal/storage/local/pcs",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/api/external-api/v1/proto",
+        "//internal/storage/local/common",
+    ],
+)

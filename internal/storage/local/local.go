@@ -1,18 +1,22 @@
 package local
 
 import (
+	"github.com/YarikRevich/HideSeek-Server/internal/storage/local/ammo"
 	"github.com/YarikRevich/HideSeek-Server/internal/storage/local/common"
+	"github.com/YarikRevich/HideSeek-Server/internal/storage/local/elements"
+	"github.com/YarikRevich/HideSeek-Server/internal/storage/local/maps"
 	"github.com/YarikRevich/HideSeek-Server/internal/storage/local/pcs"
 	"github.com/YarikRevich/HideSeek-Server/internal/storage/local/weapons"
+	"github.com/YarikRevich/HideSeek-Server/internal/storage/local/worlds"
 )
 
-//Local storage instead of db
 type Local struct {
 	weapons  common.Collection
 	ammo     common.Collection
 	pcs      common.Collection
 	elements common.Collection
 	maps     common.Collection
+	worlds   common.Collection
 }
 
 func (l *Local) Weapons() common.Collection {
@@ -35,13 +39,17 @@ func (l *Local) Elements() common.Collection {
 	return l.elements
 }
 
+func (l *Local) Worlds() common.Collection {
+	return l.worlds
+}
+
 func New() *Local {
 	return &Local{
 		weapons:  weapons.New(),
 		elements: elements.New(),
-
-		maps: maps.New(),
-		pcs:  pcs.New(),
-		ammo: ammo.New(),
+		maps:     maps.New(),
+		pcs:      pcs.New(),
+		ammo:     ammo.New(),
+		worlds:   worlds.New(),
 	}
 }

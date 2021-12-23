@@ -6,7 +6,8 @@ import (
 
 	"github.com/YarikRevich/HideSeek-Server/internal/api/external-api/v1/proto"
 	"github.com/YarikRevich/HideSeek-Server/internal/storage"
-	externalapistorage "github.com/YarikRevich/HideSeek-Server/internal/storage/external-api"
+
+	// externalapistorage "github.com/YarikRevich/HideSeek-Server/internal/storage/external-api"
 	"github.com/YarikRevich/HideSeek-Server/tools/utils"
 	"github.com/golang/protobuf/ptypes/wrappers"
 )
@@ -16,44 +17,32 @@ type ExternalService struct {
 }
 
 func (h *ExternalService) UpdateWorld(ctx context.Context, world *proto.World) (*wrappers.BoolValue, error) {
-	storage.UseStorage().WorldStorage.Add(world.GetId(), world)
+	storage.UseStorage().Local().Worlds().InsertOrUpdate(world.GetId(), world)
 	return &wrappers.BoolValue{Value: true}, nil
 }
 
-func (a *ExternalService) UpdateMap(ctx context.Context, r *proto.Map) (*wrappers.BoolValue, error) {
-	storage.UseStorage().MapStorage.Add(r.Base.Parent.GetId(), r)
+func (a *ExternalService) UpdateMap(ctx context.Context, worldMap *proto.Map) (*wrappers.BoolValue, error) {
+	storage.UseStorage().Local().Worlds().InsertOrUpdate(worldMap.Base.Parent.GetId(), worldMap)
 	return &wrappers.BoolValue{Value: true}, nil
 }
-
-// func (a *ExternalService) AddElement(ctx context.Context, r *proto.Element) (*wrappers.BoolValue, error) {
-// 	return nil, nil
-// }
-
-// func (a *ExternalService) AddWeapon(ctx context.Context, r *proto.Weapon) (*wrappers.BoolValue, error) {
-// 	return nil, nil
-// }
-
-// func (a *ExternalService) AddAmmo(ctx context.Context, r *proto.Ammo) (*wrappers.BoolValue, error) {
-// 	return nil, nil
-// }
 
 //Assigns random spawns to the pcs set by this world
 func (a *ExternalService) AssignRandomSpawnsToPCs(ctx context.Context, r *proto.AssignRandomSpawnsToPCsRequest) (*wrappers.BoolValue, error) {
 	s := storage.UseStorage()
-	mps := s.MapStorage.Get(r.GetWorldId())
-	pcs := s.PCStorage.Get(r.GetWorldId())
+	worldMap := s.Local().Maps().Find(r.GetWorldId()).(*proto.Map)
+	pcs := s.Local().PCs().Find(r.GetWorldId()).([]*proto.PC)
 	randomSpawnsIndicies := utils.GetSequenceOfRandomInt(len(pcs), 0, len(pcs)-1)
 	for i := 0; i < len(pcs)-1; i++ {
-		pcs[i].Base.Spawn = mps.GetSpawns()[randomSpawnsIndicies[i]]
+		pcs[i].Base.Spawn = worldMap.GetSpawns()[randomSpawnsIndicies[i]]
 	}
 	return nil, nil
 }
 
 func (a *ExternalService) GetWorld(ctx context.Context, worldID *wrappers.StringValue) (*proto.GetWorldResponse, error) {
-	s := storage.UseStorage().ExternalApiStorage
+	s := storage.UseStorage().Local()
 
-	pcs := s.PCStorage.Get(worldID.Value)
-	copyPCs := make(externalapistorage.PCs, len(pcs), cap(pcs))
+	pcs := s.PCs().Find(worldID.Value).([]*proto.PC)
+	copyPCs := make([]*proto.PC, len(pcs), cap(pcs))
 	copy(copyPCs, pcs)
 
 	sort.Slice(copyPCs, func(i, j int) bool {
@@ -61,47 +50,35 @@ func (a *ExternalService) GetWorld(ctx context.Context, worldID *wrappers.String
 	})
 
 	return &proto.GetWorldResponse{
-		World:    s.WorldStorage.Get(worldID.Value),
-		Weapons:  s.WeaponStorage.Get(worldID.Value),
-		Elements: s.ElementStorage.Get(worldID.Value),
-		Ammos:    s.AmmoStorage.Get(worldID.Value),
+		World:    s.Worlds().Find(worldID.GetValue()).(*proto.World),
+		Weapons:  s.Weapons().Find(worldID.GetValue()).([]*proto.Weapon),
+		Elements: s.Elements().Find(worldID.GetValue()).([]*proto.Element),
+		Ammos:    s.Ammo().Find(worldID.GetValue()).([]*proto.Ammo),
 		PCs:      copyPCs,
 	}, nil
 }
 
 func (a *ExternalService) UpdatePC(ctx context.Context, r *proto.PC) (*wrappers.BoolValue, error) {
-	v := storage.UseStorage().PCStorage.Get(r.Base.GetId())
-	v.Remove(r)
-	v.Add(r)
-
-	s := storage.UseStorage().PCStorage
-
-	r.LobbyNumber = int64(s.Length() + 1)
-	s.Add(r.Base.Parent.Parent.GetId(), r)
-
+	storage.UseStorage().Local().PCs().InsertOrUpdate(r.Base.GetId(), r)
 	return &wrappers.BoolValue{Value: true}, nil
-
-	// return &wrappers.BoolValue{true}, nil
 }
 
 func (a *ExternalService) UpdateAmmo(ctx context.Context, r *proto.Ammo) (*wrappers.BoolValue, error) {
-	v := storage.UseStorage().AmmoStorage.Get(r.Base.GetId())
-	v.Remove(r)
-	v.Add(r)
+	storage.UseStorage().Local().Ammo().InsertOrUpdate(r.Base.GetId(), r)
 	return &wrappers.BoolValue{Value: true}, nil
 }
 
 func (a *ExternalService) DeleteWorld(ctx context.Context, r *wrappers.StringValue) (*wrappers.BoolValue, error) {
-	s := storage.UseStorage()
+	s := storage.UseStorage().Local()
 
 	worldIDString := r.GetValue()
 
 	// s.WorldStorage.Remove(worldIDString)
-	s.MapStorage.Remove(worldIDString)
-	s.ElementStorage.Remove(worldIDString)
-	s.PCStorage.Remove(worldIDString)
-	s.WeaponStorage.Remove(worldIDString)
-	s.AmmoStorage.Remove(worldIDString)
+	s.Maps().Delete(worldIDString)
+	s.Elements().Delete(worldIDString)
+	s.PCs().Delete(worldIDString)
+	s.Weapons().Delete(worldIDString)
+	s.Ammo().Delete(worldIDString)
 	return &wrappers.BoolValue{Value: true}, nil
 }
 

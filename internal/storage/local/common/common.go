@@ -1,6 +1,7 @@
 package common
 
 type Collection interface {
-	Insert()
-	Find()
+	InsertOrUpdate(string, interface{})
+	Find(string) interface{}
+	Delete(string)
 }

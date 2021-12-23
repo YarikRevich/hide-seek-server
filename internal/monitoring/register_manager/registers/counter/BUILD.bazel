@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "counter",
+    srcs = ["counter.go"],
+    importpath = "github.com/YarikRevich/HideSeek-Server/internal/monitoring/register_manager/registers/counter",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/monitoring/register_manager/registers/common",
+        "@com_github_prometheus_client_golang//prometheus:go_default_library",
+    ],
+)

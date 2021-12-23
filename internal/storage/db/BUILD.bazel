@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "db",
+    srcs = ["db.go"],
+    importpath = "github.com/YarikRevich/HideSeek-Server/internal/storage/db",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/storage/db/provider",
+        "//internal/storage/db/provider/collection_manager",
+    ],
+)
