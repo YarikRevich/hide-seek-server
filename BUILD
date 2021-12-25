@@ -5,7 +5,7 @@ load("@bazel_gazelle//:def.bzl", "gazelle")
 gazelle(name = "gazelle")
 
 go_library(
-    name = "HideSeek-Server_lib",
+    name = "hide-seek-server_lib",
     srcs = ["main.go"],
     importpath = "github.com/YarikRevich/hide-seek-server",
     visibility = ["//visibility:public"],
@@ -19,7 +19,7 @@ go_library(
 )
 
 go_binary(
-    name = "HideSeek-Server",
-    embed = [":HideSeek-Server_lib"],
+    name = "hide-seek-server",
+    embed = [":hide-seek-server_lib"],
     visibility = ["//visibility:public"],
 )
