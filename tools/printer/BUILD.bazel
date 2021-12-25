@@ -5,5 +5,5 @@ go_library(
     srcs = ["printer.go"],
     importpath = "github.com/YarikRevich/HideSeek-Server/tools/printer",
     visibility = ["//visibility:public"],
-    deps = ["@com_github_mbndr_figlet4go//:go_default_library"],
+    deps = ["@com_github_mbndr_figlet4go//:figlet4go"],
 )

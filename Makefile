@@ -13,7 +13,7 @@ test:
 	@go test ./... 
 
 build:
-	@go build
+	@go build -o HideSeek-Server cmd/main.go
 
 install:
 	@go install

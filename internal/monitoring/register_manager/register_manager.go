@@ -15,6 +15,6 @@ func (rm *RegisterManager) CreatedWorldsCounter() common.Register {
 
 func New() *RegisterManager {
 	return &RegisterManager{
-		createdworldscounter: counter.New("Created Worlds"),
+		createdworldscounter: counter.New("createdworlds"),
 	}
 }

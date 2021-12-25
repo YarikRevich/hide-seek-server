@@ -9,6 +9,7 @@ require (
 	github.com/YarikRevich/game-networking v1.1.4-0.20211015150625-86d96e1221b6 // indirect
 	github.com/YarikRevich/go-demonizer v0.0.0-20211219182611-d871c1bd29f5 // indirect
 	github.com/YarikRevich/wrapper v0.0.0-20210919192625-fd9de6c41066 // indirect
+	github.com/bazelbuild/bazel-gazelle v0.24.0 // indirect
 	github.com/franela/goblin v0.0.0-20211003143422-0a4f594942bf
 	github.com/go-ping/ping v0.0.0-20210911151512-381826476871 // indirect
 	github.com/golang/mock v1.6.0 // indirect

@@ -1,0 +1,27 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "cmd_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/YarikRevich/HideSeek-Server/cmd",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//internal/api/external-api/v1/implementation",
+        "//internal/api/external-api/v1/proto",
+        "//internal/cache",
+        "//internal/interceptors",
+        "//internal/monitoring",
+        "//tools/params",
+        "//tools/printer",
+        "@com_github_sirupsen_logrus//:logrus",
+        "@com_github_yarikrevich_go_demonizer//pkg/demonizer",
+        "@org_golang_google_grpc//:go_default_library",
+        "@org_golang_google_grpc//encoding/gzip",
+    ],
+)
+
+go_binary(
+    name = "cmd",
+    embed = [":cmd_lib"],
+    visibility = ["//visibility:public"],
+)
