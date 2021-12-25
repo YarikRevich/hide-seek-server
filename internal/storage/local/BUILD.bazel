@@ -5,4 +5,13 @@ go_library(
     srcs = ["local.go"],
     importpath = "github.com/YarikRevich/hide-seek-server/internal/storage/local",
     visibility = ["//visibility:public"],
+    deps = [
+        "//hide-seek-server/internal/storage/local/ammo",
+        "//hide-seek-server/internal/storage/local/common",
+        "//hide-seek-server/internal/storage/local/elements",
+        "//hide-seek-server/internal/storage/local/maps",
+        "//hide-seek-server/internal/storage/local/pcs",
+        "//hide-seek-server/internal/storage/local/weapons",
+        "//hide-seek-server/internal/storage/local/worlds",
+    ],
 )

@@ -5,4 +5,8 @@ go_library(
     srcs = ["maps.go"],
     importpath = "github.com/YarikRevich/hide-seek-server/internal/storage/local/maps",
     visibility = ["//visibility:public"],
+    deps = [
+        "//hide-seek-server/internal/api/external-api/v1/proto",
+        "//hide-seek-server/internal/storage/local/common",
+    ],
 )

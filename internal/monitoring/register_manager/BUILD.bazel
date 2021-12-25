@@ -5,4 +5,8 @@ go_library(
     srcs = ["register_manager.go"],
     importpath = "github.com/YarikRevich/hide-seek-server/internal/monitoring/register_manager",
     visibility = ["//visibility:public"],
+    deps = [
+        "//hide-seek-server/internal/monitoring/register_manager/registers/common",
+        "//hide-seek-server/internal/monitoring/register_manager/registers/counter",
+    ],
 )

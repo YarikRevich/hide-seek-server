@@ -5,5 +5,8 @@ go_library(
     srcs = ["interceptors.go"],
     importpath = "github.com/YarikRevich/hide-seek-server/internal/interceptors",
     visibility = ["//visibility:public"],
-    deps = ["@org_golang_google_grpc//:go_default_library"],
+    deps = [
+        "//hide-seek-server/internal/interceptors/external-api",
+        "@org_golang_google_grpc//:go_default_library",
+    ],
 )

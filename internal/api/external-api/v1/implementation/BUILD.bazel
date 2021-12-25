@@ -5,7 +5,12 @@ go_library(
     srcs = ["implementation.go"],
     importpath = "github.com/YarikRevich/hide-seek-server/internal/api/external-api/v1/implementation",
     visibility = ["//visibility:public"],
-    deps = ["@io_bazel_rules_go//proto/wkt:wrappers_go_proto"],
+    deps = [
+        "//hide-seek-server/internal/api/external-api/v1/proto",
+        "//hide-seek-server/internal/storage",
+        "//hide-seek-server/tools/utils",
+        "@io_bazel_rules_go//proto/wkt:wrappers_go_proto",
+    ],
 )
 
 go_test(

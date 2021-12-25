@@ -5,5 +5,8 @@ go_library(
     srcs = ["counter.go"],
     importpath = "github.com/YarikRevich/hide-seek-server/internal/monitoring/register_manager/registers/counter",
     visibility = ["//visibility:public"],
-    deps = ["@com_github_prometheus_client_golang//prometheus:go_default_library"],
+    deps = [
+        "//hide-seek-server/internal/monitoring/register_manager/registers/common",
+        "@com_github_prometheus_client_golang//prometheus:go_default_library",
+    ],
 )
