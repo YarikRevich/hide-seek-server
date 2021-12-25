@@ -3,15 +3,6 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "local",
     srcs = ["local.go"],
-    importpath = "github.com/YarikRevich/HideSeek-Server/internal/storage/local",
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//internal/storage/local/ammo",
-        "//internal/storage/local/common",
-        "//internal/storage/local/elements",
-        "//internal/storage/local/maps",
-        "//internal/storage/local/pcs",
-        "//internal/storage/local/weapons",
-        "//internal/storage/local/worlds",
-    ],
+    importpath = "github.com/YarikRevich/hide-seek-server/internal/storage/local",
+    visibility = ["//visibility:public"],
 )

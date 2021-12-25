@@ -21,9 +21,9 @@ go_proto_library(
     importpath = "internal/api/internal-api/v1/proto",
     proto = ":proto_proto",
     visibility = [
-        "//:__subpackages__",
-        "@bazel_gazelle//:__subpackages__",
-        "@io_bazel_rules_go//:__subpackages__",
+        "//visibility:public",
+        "@bazel_gazelle//visibility:public",
+        "@io_bazel_rules_go//visibility:public",
     ],
 )
 
@@ -32,8 +32,8 @@ go_library(
     embed = [":proto_go_proto"],
     importpath = "internal/api/internal-api/v1/proto",
     visibility = [
-        "//:__subpackages__",
-        "@bazel_gazelle//:__subpackages__",
-        "@io_bazel_rules_go//:__subpackages__",
+        "//visibility:public",
+        "@bazel_gazelle//visibility:public",
+        "@io_bazel_rules_go//visibility:public",
     ],
 )

@@ -1,4 +1,4 @@
-module github.com/YarikRevich/HideSeek-Server
+module github.com/YarikRevich/hide-seek-server
 
 go 1.16
 

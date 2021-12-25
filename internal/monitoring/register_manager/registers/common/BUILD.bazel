@@ -3,6 +3,6 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "common",
     srcs = ["common.go"],
-    importpath = "github.com/YarikRevich/HideSeek-Server/internal/monitoring/register_manager/registers/common",
-    visibility = ["//:__subpackages__"],
+    importpath = "github.com/YarikRevich/hide-seek-server/internal/monitoring/register_manager/registers/common",
+    visibility = ["//visibility:public"],
 )

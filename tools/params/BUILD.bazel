@@ -3,6 +3,6 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "params",
     srcs = ["params.go"],
-    importpath = "github.com/YarikRevich/HideSeek-Server/tools/params",
+    importpath = "github.com/YarikRevich/hide-seek-server/tools/params",
     visibility = ["//visibility:public"],
 )

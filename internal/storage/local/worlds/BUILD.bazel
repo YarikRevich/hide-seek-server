@@ -3,10 +3,6 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "worlds",
     srcs = ["worlds.go"],
-    importpath = "github.com/YarikRevich/HideSeek-Server/internal/storage/local/worlds",
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//internal/api/external-api/v1/proto",
-        "//internal/storage/local/common",
-    ],
+    importpath = "github.com/YarikRevich/hide-seek-server/internal/storage/local/worlds",
+    visibility = ["//visibility:public"],
 )
