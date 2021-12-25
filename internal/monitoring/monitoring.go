@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	registermanager "github.com/YarikRevich/HideSeek-Server/internal/monitoring/register_manager"
-	"github.com/YarikRevich/HideSeek-Server/tools/params"
+	registermanager "github.com/YarikRevich/hide-seek-server/internal/monitoring/register_manager"
+	"github.com/YarikRevich/hide-seek-server/tools/params"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 )

@@ -1,7 +1,7 @@
 package counter
 
 import (
-	"github.com/YarikRevich/HideSeek-Server/internal/monitoring/register_manager/registers/common"
+	"github.com/YarikRevich/hide-seek-server/internal/monitoring/register_manager/registers/common"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

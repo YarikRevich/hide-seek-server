@@ -2,7 +2,7 @@ package cache
 
 import (
 	"time"
-	// "github.com/YarikRevich/HideSeek-Server/internal/collection"
+	// "github.com/YarikRevich/hide-seek-server/internal/collection"
 )
 
 var instance *Cache

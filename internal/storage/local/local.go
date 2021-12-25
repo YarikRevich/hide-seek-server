@@ -1,13 +1,13 @@
 package local
 
 import (
-	"github.com/YarikRevich/HideSeek-Server/internal/storage/local/ammo"
-	"github.com/YarikRevich/HideSeek-Server/internal/storage/local/common"
-	"github.com/YarikRevich/HideSeek-Server/internal/storage/local/elements"
-	"github.com/YarikRevich/HideSeek-Server/internal/storage/local/maps"
-	"github.com/YarikRevich/HideSeek-Server/internal/storage/local/pcs"
-	"github.com/YarikRevich/HideSeek-Server/internal/storage/local/weapons"
-	"github.com/YarikRevich/HideSeek-Server/internal/storage/local/worlds"
+	"github.com/YarikRevich/hide-seek-server/internal/storage/local/ammo"
+	"github.com/YarikRevich/hide-seek-server/internal/storage/local/common"
+	"github.com/YarikRevich/hide-seek-server/internal/storage/local/elements"
+	"github.com/YarikRevich/hide-seek-server/internal/storage/local/maps"
+	"github.com/YarikRevich/hide-seek-server/internal/storage/local/pcs"
+	"github.com/YarikRevich/hide-seek-server/internal/storage/local/weapons"
+	"github.com/YarikRevich/hide-seek-server/internal/storage/local/worlds"
 )
 
 type Local struct {

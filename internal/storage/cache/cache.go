@@ -3,7 +3,7 @@ package cache
 import (
 	"time"
 
-	"github.com/YarikRevich/HideSeek-Server/tools/params"
+	"github.com/YarikRevich/hide-seek-server/tools/params"
 )
 
 type Cache struct {

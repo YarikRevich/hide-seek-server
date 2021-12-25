@@ -1,8 +1,8 @@
 package db
 
 import (
-	"github.com/YarikRevich/HideSeek-Server/internal/storage/db/provider"
-	collectionmanager "github.com/YarikRevich/HideSeek-Server/internal/storage/db/provider/collection_manager"
+	"github.com/YarikRevich/hide-seek-server/internal/storage/db/provider"
+	collectionmanager "github.com/YarikRevich/hide-seek-server/internal/storage/db/provider/collection_manager"
 )
 
 type DB struct {
