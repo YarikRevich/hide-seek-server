@@ -1,4 +1,6 @@
-Dockerfile
+#MacOS
+
+.DS_Store
 
 #bazel metadata
 
