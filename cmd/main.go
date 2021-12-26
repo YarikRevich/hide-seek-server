@@ -1,59 +1,61 @@
 package main
 
 import (
-	"log"
+	"flag"
+	"fmt"
+	"math/rand"
+	"net"
 	"os"
+	"time"
 
-	"github.com/YarikRevich/game-networking/pkg/config"
-	"github.com/YarikRevich/game-networking/pkg/server"
-	"github.com/YarikRevich/hide-seek-server/internal/handlers"
+	"github.com/YarikRevich/go-demonizer/pkg/demonizer"
+	externalapiimp "github.com/YarikRevich/hide-seek-server/internal/api/external-api/v1/implementation"
+	externalapiproto "github.com/YarikRevich/hide-seek-server/internal/api/external-api/v1/proto"
+	"github.com/YarikRevich/hide-seek-server/internal/cache"
+	"github.com/YarikRevich/hide-seek-server/internal/interceptors"
+	"github.com/YarikRevich/hide-seek-server/internal/monitoring"
+
+	"github.com/YarikRevich/hide-seek-server/tools/params"
 	"github.com/YarikRevich/hide-seek-server/tools/printer"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/encoding/gzip"
 )
 
-// 	switch result[0].Type{
-// 	case "CreateLobby":
-// 		code := C.CreateLobby(result[0], listener, addr, data)
-// 		C.SendAnswerS(result, code, listener, addr)
-// 	case "AddToLobby":
-// 		code := C.AddToLobby(result[0], listener, addr, data)
-// 		C.SendAnswerS(result, code, listener, addr)
-// 	case "ClosePreparingLobby":
-// 		code := C.ClosePreparingLobby(result[0].PersonalInfo.LobbyID, data)
-// 		C.SendAnswerS(result, code, listener, addr)
-// 	case "GetUsersInfoPrepLobby":
-// 		usersInfo, code := C.GetUsersInfoPrepLobby(result[0], addr, listener, data)
-// 		C.SendAnswerS(usersInfo, code, listener, addr)
-// 	case "GetUsersInfoReadyLobby":
-// 		usersInfo, code := C.GetUsersInfoReadyLobby(result[0], addr, listener, data)
-// 		C.SendAnswerS(usersInfo, code, listener, addr)
-// 	case "UpdateUsersHealth":
-// 		usersInfo, code := C.UpdateUsersHealth(result[0], data)
-// 		C.SendAnswerS(usersInfo, code, listener, addr)
-// 	case "DeleteLobby":
-// 		code := C.DeleteLobby(result[0].PersonalInfo.LobbyID, addr, listener, result[0].Networking.Index, data)
-// 		C.SendAnswerS(result, code, listener, addr)
-// 	case "OK":
-// 		C.SendAnswerS(result, "200", listener, addr)
-// 	}
-
 func init() {
+	rand.Seed(time.Now().Unix())
+
+	flag.Parse()
+
+	if params.IsDemon() {
+		demonizer.DemonizeThisProcess()
+	}
+
 	logrus.SetFormatter(logrus.StandardLogger().Formatter)
 
 	logrus.SetOutput(os.Stderr)
-	logrus.SetLevel(logrus.WarnLevel)
+	logrus.SetLevel(logrus.InfoLevel)
 
-	printer.PrintWelcomeMessage("HideSeek\nServer!")
+	printer.PrintWelcomeMessage()
 }
 
 func main() {
-	conn := server.Listen(config.Config{
-		IP:   "127.0.0.1",
-		Port: "8090"})
+	conn, err := net.Listen("tcp", fmt.Sprintf("%s:%s", params.GetServerIP(), params.GetServerPort()))
+	if err != nil {
+		logrus.Fatal(err)
+	}
 
-	conn.AddHandler("reg_user", handlers.RegUser)
-	conn.AddHandler("reg_world", handlers.RegWorld)
-	conn.AddHandler("update_world_users", handlers.UpdateWorldUsersHandler)
+	monitoring.UseMonitoring().ListenAndServe()
 
-	log.Fatalln(conn.WaitForInterrupt())
+	opts := []grpc.ServerOption{
+		grpc.ChainUnaryInterceptor(
+			interceptors.NewInterceptorManager(),
+		)}
+	s := grpc.NewServer(opts...)
+
+	grpc.UseCompressor(gzip.Name)
+	cache.UseCache()
+
+	externalapiproto.RegisterExternalServiceServer(s, externalapiimp.NewExternalService())
+	s.Serve(conn)
 }
