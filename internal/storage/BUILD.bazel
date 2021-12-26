@@ -6,8 +6,8 @@ go_library(
     importpath = "github.com/YarikRevich/hide-seek-server/internal/storage",
     visibility = ["//visibility:public"],
     deps = [
-        "//hide-seek-server/internal/storage/cache",
-        "//hide-seek-server/internal/storage/db",
-        "//hide-seek-server/internal/storage/local",
+        "//internal/storage/cache",
+        "//internal/storage/db",
+        "//internal/storage/local",
     ],
 )

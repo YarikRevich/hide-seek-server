@@ -5,5 +5,5 @@ go_library(
     srcs = ["cache.go"],
     importpath = "github.com/YarikRevich/hide-seek-server/internal/storage/cache",
     visibility = ["//visibility:public"],
-    deps = ["//hide-seek-server/tools/params"],
+    deps = ["//tools/params"],
 )
