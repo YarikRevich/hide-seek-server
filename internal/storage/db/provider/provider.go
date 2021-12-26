@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/YarikRevich/HideSeek-Server/tools/params"
+	"github.com/YarikRevich/hide-seek-server/tools/params"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

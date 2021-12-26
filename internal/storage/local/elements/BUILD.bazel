@@ -3,10 +3,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "elements",
     srcs = ["elements.go"],
-    importpath = "github.com/YarikRevich/HideSeek-Server/internal/storage/local/elements",
-    visibility = ["//:__subpackages__"],
+    importpath = "github.com/YarikRevich/hide-seek-server/internal/storage/local/elements",
+    visibility = ["//visibility:public"],
     deps = [
-        "//internal/api/external-api/v1/proto",
-        "//internal/storage/local/common",
+        "//hide-seek-server/internal/api/external-api/v1/proto",
+        "//hide-seek-server/internal/storage/local/common",
     ],
 )

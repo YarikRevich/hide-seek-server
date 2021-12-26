@@ -1,8 +1,8 @@
 package registermanager
 
 import (
-	"github.com/YarikRevich/HideSeek-Server/internal/monitoring/register_manager/registers/common"
-	"github.com/YarikRevich/HideSeek-Server/internal/monitoring/register_manager/registers/counter"
+	"github.com/YarikRevich/hide-seek-server/internal/monitoring/register_manager/registers/common"
+	"github.com/YarikRevich/hide-seek-server/internal/monitoring/register_manager/registers/counter"
 )
 
 type RegisterManager struct {

@@ -3,10 +3,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "interceptors",
     srcs = ["interceptors.go"],
-    importpath = "github.com/YarikRevich/HideSeek-Server/internal/interceptors",
-    visibility = ["//:__subpackages__"],
+    importpath = "github.com/YarikRevich/hide-seek-server/internal/interceptors",
+    visibility = ["//visibility:public"],
     deps = [
-        "//internal/interceptors/external-api",
+        "//hide-seek-server/internal/interceptors/external-api",
         "@org_golang_google_grpc//:go_default_library",
     ],
 )

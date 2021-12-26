@@ -1,9 +1,9 @@
 package storage
 
 import (
-	"github.com/YarikRevich/HideSeek-Server/internal/storage/cache"
-	"github.com/YarikRevich/HideSeek-Server/internal/storage/db"
-	"github.com/YarikRevich/HideSeek-Server/internal/storage/local"
+	"github.com/YarikRevich/hide-seek-server/internal/storage/cache"
+	"github.com/YarikRevich/hide-seek-server/internal/storage/db"
+	"github.com/YarikRevich/hide-seek-server/internal/storage/local"
 )
 
 var instance *Storage

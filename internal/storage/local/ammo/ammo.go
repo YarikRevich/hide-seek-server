@@ -1,8 +1,8 @@
 package ammo
 
 import (
-	"github.com/YarikRevich/HideSeek-Server/internal/api/external-api/v1/proto"
-	"github.com/YarikRevich/HideSeek-Server/internal/storage/local/common"
+	"github.com/YarikRevich/hide-seek-server/internal/api/external-api/v1/proto"
+	"github.com/YarikRevich/hide-seek-server/internal/storage/local/common"
 )
 
 type AmmoCollection struct {

@@ -3,7 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "external-api",
     srcs = ["external-api.go"],
-    importpath = "github.com/YarikRevich/HideSeek-Server/internal/interceptors/external-api",
-    visibility = ["//:__subpackages__"],
+    importpath = "github.com/YarikRevich/hide-seek-server/internal/interceptors/external-api",
+    visibility = ["//visibility:public"],
     deps = ["@org_golang_google_grpc//:go_default_library"],
 )

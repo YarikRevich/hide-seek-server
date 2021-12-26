@@ -3,12 +3,17 @@ load("@io_bazel_rules_go//go:def.bzl", "go_test", "go_library")
 go_library(
     name = "implementation",
     srcs = ["implementation.go"],
+<<<<<<< HEAD
     importpath = "github.com/YarikRevich/HideSeek-Server/internal/api/external-api/v1/implementation",
     visibility = ["//:__pkg__"],
+=======
+    importpath = "github.com/YarikRevich/hide-seek-server/internal/api/external-api/v1/implementation",
+    visibility = ["//visibility:public"],
+>>>>>>> a3ecc91a52da5791960f34b0a2136987040179f8
     deps = [
-        "//internal/api/external-api/v1/proto",
-        "//internal/storage",
-        "//tools/utils",
+        "//hide-seek-server/internal/api/external-api/v1/proto",
+        "//hide-seek-server/internal/storage",
+        "//hide-seek-server/tools/utils",
         "@io_bazel_rules_go//proto/wkt:wrappers_go_proto",
     ],
 )

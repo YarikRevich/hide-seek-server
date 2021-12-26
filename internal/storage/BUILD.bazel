@@ -3,11 +3,11 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "storage",
     srcs = ["storage.go"],
-    importpath = "github.com/YarikRevich/HideSeek-Server/internal/storage",
-    visibility = ["//:__subpackages__"],
+    importpath = "github.com/YarikRevich/hide-seek-server/internal/storage",
+    visibility = ["//visibility:public"],
     deps = [
-        "//internal/storage/cache",
-        "//internal/storage/db",
-        "//internal/storage/local",
+        "//hide-seek-server/internal/storage/cache",
+        "//hide-seek-server/internal/storage/db",
+        "//hide-seek-server/internal/storage/local",
     ],
 )

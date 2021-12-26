@@ -3,7 +3,7 @@ package interceptors
 import (
 	"context"
 
-	externalapiinterceptor "github.com/YarikRevich/HideSeek-Server/internal/interceptors/external-api"
+	externalapiinterceptor "github.com/YarikRevich/hide-seek-server/internal/interceptors/external-api"
 	"google.golang.org/grpc"
 )
 
