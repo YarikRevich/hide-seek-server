@@ -1,8 +1,0 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
-
-go_library(
-    name = "implementation_internal",
-    srcs = ["internal-api.go"],
-    importpath = "github.com/YarikRevich/hide-seek-server/internal/api/internal-api/v1/implementation",
-    visibility = ["//visibility:public"],
-)

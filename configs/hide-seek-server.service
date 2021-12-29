@@ -1,0 +1,12 @@
+[Unit]
+Description=hide-seek-server daemon
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/local/bin/hide-seek-server
+
+[Install]
+WantedBy=multi-user.target

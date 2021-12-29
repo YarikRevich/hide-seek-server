@@ -1,15 +1,35 @@
 load("@io_bazel_rules_prometheus//prometheus:defs.bzl", "promtool_config_test", "prometheus")
 load("@io_bazel_rules_prometheus//prometheus/internal:prom.bzl", "prometheus_server")
 
+package(default_visibility = ["//visibility:public"])
+
+#Prometheus
+
 promtool_config_test(
     name = "test_prometheus_config",
     srcs = ["prometheus.yml"],
 )
 
-package(default_visibility = ["//visibility:public"])
-
 prometheus_server(
     name="prometheus_server",
     config="prometheus.yml",
 )
+
+#Service
+
+# genrule(
+#   name = "",
+
+#   cmd = select({
+#     "@bazel_tools//src/conditions:darwin": "echo 'macOS' > $@",
+#     "//conditions:default": "echo 'Linux' > $@",
+#   }),
+# )
+
+# genrule(
+#   name = "myproject",
+# #   exec_tools = ["//cmd:hide-seek-server"],
+#   cmd = "$(exe //cmd:hide-seek-server);\n 'stub' > $@",
+#   outs = ["gr.txt"],
+# )
 

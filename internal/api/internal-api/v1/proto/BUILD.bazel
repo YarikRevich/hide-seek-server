@@ -1,10 +1,10 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
-    name = "proto",
+    name = "internal_proto",
     srcs = [
         "internal.pb.go",
-        "internal_grpc.pb.go",
+        # "internal_grpc.pb.go",
     ],
     importpath = "github.com/YarikRevich/hide-seek-server/internal/api/internal-api/v1/proto",
     visibility = ["//visibility:public"],

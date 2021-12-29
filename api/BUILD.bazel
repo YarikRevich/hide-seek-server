@@ -1,39 +1,51 @@
 load("@rules_proto//proto:defs.bzl", "proto_library")
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 proto_library(
-    name = "proto_proto",
-    srcs = [
-        "external.proto",
-        "internal.proto",
-    ],
+    name="external_proto",
     visibility = ["//visibility:public"],
+    srcs = [
+        "external.proto"],
     deps = [
         "@com_google_protobuf//:empty_proto",
-        "@com_google_protobuf//:wrappers_proto",
-    ],
+        "@com_google_protobuf//:wrappers_proto"],
+)
+
+proto_library(
+    name="internal_proto",
+    visibility = ["//visibility:public"],
+    srcs = [
+        "internal.proto"],
+    deps = [
+        "@com_google_protobuf//:empty_proto",
+        "@com_google_protobuf//:wrappers_proto"],
 )
 
 go_proto_library(
-    name = "proto_go_proto",
+    name="external_proto_go",
+    compilers = ["@io_bazel_rules_go//proto:go_grpc"],
+    importpath = "internal/api/external-api/v1/proto",
+    visibility = ["//visibility:public"],
+    proto = "external_proto",
+)
+
+go_proto_library(
+    name="internal_proto_go",
     compilers = ["@io_bazel_rules_go//proto:go_grpc"],
     importpath = "internal/api/internal-api/v1/proto",
-    proto = ":proto_proto",
-    visibility = [
-        "//visibility:public",
-        "@bazel_gazelle//visibility:public",
-        "@io_bazel_rules_go//visibility:public",
-    ],
+    visibility = ["//visibility:public"],
+    proto = "internal_proto",
 )
 
 go_library(
-    name = "proto",
-    embed = [":proto_go_proto"],
-    importpath = "internal/api/internal-api/v1/proto",
-    visibility = [
-        "//visibility:public",
-        "@bazel_gazelle//visibility:public",
-        "@io_bazel_rules_go//visibility:public",
-    ],
+    name="external_proto_go_lib",
+    deps = [":external_api_proto_go"],
+    visibility = ["//visibility:public"],
+)
+
+go_library(
+    name="internal_proto_go_lib",
+    deps = [":internal_api_proto_go"],
+    visibility = ["//visibility:public"],
 )

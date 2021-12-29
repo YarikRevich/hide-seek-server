@@ -1,8 +1,21 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
-    name = "implementation",
-    srcs = ["internal-api.go"],
+    name = "internal_implementation",
+    srcs = ["implementation.go"],
     importpath = "github.com/YarikRevich/hide-seek-server/internal/api/internal-api/v1/implementation",
     visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/api/internal-api/v1/proto:internal_proto",
+        "//internal/storage",
+        "//tools/utils",
+        "@io_bazel_rules_go//proto/wkt:wrappers_go_proto",
+    ],
+)
+
+go_test(
+    name = "implementation_test",
+    srcs = ["implementation_test.go"],
+    embed = [":implementation"],
+    deps = ["@com_github_franela_goblin//:go_default_library"],
 )

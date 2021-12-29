@@ -5,10 +5,10 @@ go_library(
     name = "cmd_lib",
     srcs = ["main.go"],
     importpath = "github.com/YarikRevich/hide-seek-server/cmd",
-    visibility = ["//visibility:private"],
+    visibility = ["//visibility:public"],
     deps = [
-        "//internal/api/external-api/v1/implementation",
-        "//internal/api/external-api/v1/proto",
+        "//internal/api/external-api/v1/implementation:external_implementation",
+        "//internal/api/external-api/v1/proto:external_proto",
         "//internal/cache",
         "//internal/interceptors",
         "//internal/monitoring",
