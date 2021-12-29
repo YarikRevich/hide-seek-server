@@ -28,9 +28,12 @@ Go to the root path for the game server and run
 ```
 $ make
 
-#If you want to install it as an executable
-$ make install --executable
+#The default installation type is executable, it
+#means that there will be installed only executable file
+#which you should manage to run
 
-#If you want to install it as a service
-$ make install --service
+$ make install
+
+#If you want to install it as a service run
+$ make install installation_type=service
 ```
