@@ -35,19 +35,6 @@ load(
 
 container_repositories()
 
-# load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
-
-# container_deps()
-
-# load("@io_bazel_rules_docker//container:pull.bzl", "container_pull")
-
-# container_pull(
-#     name = "alpine_linux_amd64",
-#     registry = "index.docker.io",
-#     repository = "library/alpine",
-#     tag = "3.8",
-# )
-
 http_archive(
     name = "io_bazel_rules_go",
     sha256 = "8e968b5fcea1d2d64071872b12737bbb5514524ee5f0a4f54f5920266c261acb",
@@ -56,6 +43,17 @@ http_archive(
         "https://github.com/bazelbuild/rules_go/releases/download/v0.28.0/rules_go-v0.28.0.zip",
     ],
 )
+
+http_archive(
+    name = "io_bazel_rules_prometheus",
+    sha256 = "c9980c638cba01015f31bc610788d5396b05b67c99c1f065fef17427cb8459fe",
+    strip_prefix = "rules_prometheus-0.0.4",
+    urls = ["https://github.com/5h4d0w4rt/rules_prometheus/archive/0.0.4.zip"],
+)
+
+load("@io_bazel_rules_prometheus//:deps.bzl", "prometheus_repositories")
+
+prometheus_repositories()
 
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
 

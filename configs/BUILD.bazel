@@ -1,0 +1,15 @@
+load("@io_bazel_rules_prometheus//prometheus:defs.bzl", "promtool_config_test", "prometheus")
+load("@io_bazel_rules_prometheus//prometheus/internal:prom.bzl", "prometheus_server")
+
+promtool_config_test(
+    name = "test_prometheus_config",
+    srcs = ["prometheus.yml"],
+)
+
+package(default_visibility = ["//visibility:public"])
+
+prometheus_server(
+    name="prometheus_server",
+    config="prometheus.yml",
+)
+
