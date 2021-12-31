@@ -1,7 +1,6 @@
 # HideSeek-Server
 
-[![Linux](https://svgshare.com/i/Zhy.svg)](https://svgshare.com/i/Zhy.svg)  [![macOS](https://svgshare.com/i/ZjP.svg)](https://svgshare.com/i/ZjP.svg)  [![Windows](https://svgshare.com/i/ZhY.svg)](https://svgshare.com/i/ZhY.svg)
-
+[![Linux](https://svgshare.com/i/Zhy.svg)](https://svgshare.com/i/Zhy.svg)  [![macOS](https://svgshare.com/i/ZjP.svg)](https://svgshare.com/i/ZjP.svg)
 
 
 
@@ -18,6 +17,7 @@ Requirenments:
 - Go(>=1.7.5)
 - Bazel(>=4.2.2)
 - Make(>=3.81)
+- Docker(>= 20.0)
 
 ---
 

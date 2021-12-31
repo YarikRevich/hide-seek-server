@@ -2,9 +2,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "external_proto",
-    srcs = [
-        "external.pb.go",
-    ],
+    srcs = ["external.pb.go"],
     importpath = "github.com/YarikRevich/hide-seek-server/internal/api/external-api/v1/proto",
     visibility = ["//visibility:public"],
     deps = [

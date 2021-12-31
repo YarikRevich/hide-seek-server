@@ -1,9 +1,9 @@
-load("@io_bazel_rules_prometheus//prometheus:defs.bzl", "promtool_config_test", "prometheus")
-load("@io_bazel_rules_prometheus//prometheus/internal:prom.bzl", "prometheus_server")
-
 package(default_visibility = ["//visibility:public"])
 
 #Prometheus
+
+load("@io_bazel_rules_prometheus//prometheus:defs.bzl", "promtool_config_test")
+load("@io_bazel_rules_prometheus//prometheus/internal:prom.bzl", "prometheus_server")
 
 promtool_config_test(
     name = "test_prometheus_config",
@@ -15,21 +15,19 @@ prometheus_server(
     config="prometheus.yml",
 )
 
-#Service
+#Grafana
 
-# genrule(
-#   name = "",
+load("@io_bazel_rules_grafana//grafana:grafana.bzl", "json_dashboards")
+load("@io_bazel_rules_grafana//grafana:image.bzl", "grafana_image")
 
-#   cmd = select({
-#     "@bazel_tools//src/conditions:darwin": "echo 'macOS' > $@",
-#     "//conditions:default": "echo 'Linux' > $@",
-#   }),
-# )
+json_dashboards(
+    name = "grafana_dashboards",
+    srcs = ["grafana_dashboards.json"],
+)
 
-# genrule(
-#   name = "myproject",
-# #   exec_tools = ["//cmd:hide-seek-server"],
-#   cmd = "$(exe //cmd:hide-seek-server);\n 'stub' > $@",
-#   outs = ["gr.txt"],
-# )
+grafana_image(
+    name = "grafana_docker_image",
+    dashboards = [":test_grafana_dashboards"],
+    datasources = ["grafana_datasource.yml"],
+)
 
