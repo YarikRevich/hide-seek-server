@@ -1,0 +1,5 @@
+FROM prom/prometheus:latest
+
+LABEL Author="Yaroslav Svitlitskyi"
+
+ADD configs/prometheus.yml /etc/prometheus/prometheus.yml

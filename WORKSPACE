@@ -1,6 +1,8 @@
 workspace(name = "hide-seek-server")
 
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
 
 http_archive(
     name = "bazel_gazelle",
@@ -21,8 +23,6 @@ http_archive(
     ],
 )
 
-load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
-
 http_archive(
     name = "io_bazel_rules_docker",
     sha256 = "59536e6ae64359b716ba9c46c39183403b01eabfbd57578e84398b4829ca499a",
@@ -35,13 +35,6 @@ http_archive(
     sha256 = "cd6730ed53a002c56ce4e2f396ba3b3be262fd7cb68339f0377a45e8227fe332",
     url = "https://github.com/bazelbuild/rules_python/releases/download/0.5.0/rules_python-0.5.0.tar.gz",
 )
-
-load(
-    "@io_bazel_rules_docker//repositories:repositories.bzl",
-    container_repositories = "repositories",
-)
-
-container_repositories()
 
 http_archive(
     name = "io_bazel_rules_go",
@@ -59,30 +52,45 @@ http_archive(
     urls = ["https://github.com/5h4d0w4rt/rules_prometheus/archive/0.0.4.zip"],
 )
 
-load("@io_bazel_rules_prometheus//:deps.bzl", "prometheus_repositories")
+http_archive(
+    name = "rules_proto_grpc",
+    sha256 = "dfc624227d7da02abeaa649d6629bf17b68db7a371a83e3c60fd4a5d60b180df",
+    strip_prefix = "rules_proto_grpc-4.1.1",
+    urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/archive/refs/tags/4.1.1.zip"],
+)
 
-prometheus_repositories()
+load("@rules_proto_grpc//:repositories.bzl", "rules_proto_grpc_repos", "rules_proto_grpc_toolchains")
 
-load("@io_bazel_rules_go//go:deps.bzl", "go_download_sdk", "go_register_toolchains", "go_rules_dependencies")
+rules_proto_grpc_toolchains()
+
+rules_proto_grpc_repos()
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
+rules_proto_dependencies()
+
+rules_proto_toolchains()
+
+load("@rules_proto_grpc//:repositories.bzl", "bazel_gazelle", "io_bazel_rules_go")  # buildifier: disable=same-origin-load
+
+io_bazel_rules_go()
+
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 
 go_rules_dependencies()
 
-go_register_toolchains(version = "1.17.2")
-
-load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
-
-container_deps()
-
-load("@io_bazel_rules_docker//container:pull.bzl", "container_pull")
-
-container_pull(
-    name = "alpine_linux_amd64",
-    registry = "index.docker.io",
-    repository = "library/alpine",
-    tag = "3.8",
+go_register_toolchains(
+    version = "1.17.1",
 )
 
+bazel_gazelle()
+
+load("@rules_proto_grpc//go:repositories.bzl", rules_proto_grpc_go_repos = "go_repos")
+
+rules_proto_grpc_go_repos()
+
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+
 load("//:deps.bzl", "go_repositories")
 
 # gazelle:repository_macro deps.bzl%go_repositories
@@ -90,22 +98,47 @@ go_repositories()
 
 gazelle_dependencies()
 
-rules_proto_dependencies()
 
-rules_proto_toolchains()
 
+# load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
+
+
+#Docker workspace
+
+load(
+    "@io_bazel_rules_docker//repositories:repositories.bzl",
+    container_repositories = "repositories",
+)
+container_repositories()
+load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
+container_deps()
+load("@io_bazel_rules_docker//container:pull.bzl", "container_pull")
+container_pull(
+    name = "alpine_linux_amd64",
+    registry = "index.docker.io",
+    repository = "library/alpine",
+    tag = "3.8",
+)
 load("@io_bazel_rules_docker//repositories:go_repositories.bzl", "go_deps")
-
 go_deps()
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+
+#Prometheus workspace
+
+load("@io_bazel_rules_prometheus//:deps.bzl", "prometheus_repositories")
+prometheus_repositories()
+
+
+
+#Grafana workspace
 
 git_repository(
     name = "io_bazel_rules_grafana",
     commit = "5f6ada63da3efa52536f59e7833788d4f5ababaa",
     remote = "https://github.com/etsy/rules_grafana.git",
 )
-
 load("@io_bazel_rules_grafana//grafana:workspace.bzl", grafana_repositories = "repositories")
-
 grafana_repositories()
+

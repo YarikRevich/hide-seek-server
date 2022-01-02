@@ -2,10 +2,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "external_proto",
-    srcs = ["external.pb.go"],
     importpath = "github.com/YarikRevich/hide-seek-server/internal/api/external-api/v1/proto",
     visibility = ["//visibility:public"],
     deps = [
+        "//api:external_api",
         "@org_golang_google_grpc//:go_default_library",
         "@org_golang_google_grpc//codes:go_default_library",
         "@org_golang_google_grpc//status:go_default_library",

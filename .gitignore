@@ -9,3 +9,7 @@
 #bazel metadata
 
 bazel-*
+
+#Deps install list
+
+configs/.depstoinstall

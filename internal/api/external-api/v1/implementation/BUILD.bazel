@@ -17,5 +17,5 @@ go_test(
     name = "implementation_test",
     srcs = ["implementation_test.go"],
     embed = [":implementation"],
-    deps = ["@com_github_franela_goblin//:go_default_library"],
+    deps = ["@com_github_franela_goblin//:goblin"],
 )
