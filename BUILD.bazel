@@ -74,10 +74,31 @@ genrule(
     tools = ["//:prepare.stub"],
 )
 
+#Server 
+
+DOCKERFILE_SERVER = """FROM golang:latest
+LABEL Author="Yaroslav Svitlitskyi"
+ENV DEBIAN_FRONTEND noninteractive
+COPY . /go/src/hide-seek-server
+WORKDIR /go/src/hide-seek-server"""
+
+genrule(
+    name = "server_dockerfile",
+    cmd = "echo '%s' > $@" % DOCKERFILE_SERVER,
+    outs = ["server_dockerfile.stub"],
+)
+
+genrule(
+    name = "server_docker_image",
+    srcs = glob(["**/*"]),
+    cmd = """
+        docker build -t hide-seek-server -f Dockerfile .;\
+    """ % DOCKERFILE_SERVER,
+    outs = ["server_docker_image.stub"],
+)
+
 BUILD = """
     docker network create hide-seek;\
-    docker build -t hide-seek-server -f $(location //configs:Dockerfile.server) .;\
-    docker build -t prometheus -f $(location //configs:Dockerfile.prometheus) .;\
     docker rm -f --restart=always $$(docker ps -q --filter="ancestor=hide-seek-server");\
     docker rm -f --restart=always $$(docker ps -q --filter="ancestor=prometheus");\
     docker rm -f --restart=always $$(docker ps -q --filter="ancestor=bazel/configs:grafana_docker_image");\
@@ -89,14 +110,11 @@ BUILD = """
 
 genrule(
     name = "run",
-    srcs = [
-        "//configs:test_prometheus_config",
-        "//configs:grafana_docker_image",
-        "//cmd:hide-seek-server",
-    ],
+    srcs = ["//cmd:hide-seek-server"],
     tools = [
-        "//configs:Dockerfile.server",
-        "//configs:Dockerfile.prometheus"],
-    outs = ["build.stub"],
+        # "//:server_docker_image",
+        "//configs:grafana_docker_image",
+        "//configs:prometheus_docker_image"],
+    outs = ["run.stub"],
     cmd = BUILD,
 )

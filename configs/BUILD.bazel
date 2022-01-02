@@ -1,13 +1,27 @@
+load("@io_bazel_rules_docker//container:container.bzl", "container_image")
+
 package(default_visibility = ["//visibility:public"])
+
 
 #Prometheus
 
-load("@io_bazel_rules_prometheus//prometheus:defs.bzl", "promtool_config_test")
+DOCKERFILE_PROMETHEUS = """FROM prom/prometheus:latest
+LABEL Author="Yaroslav Svitlitskyi"
+ADD prometheus.yml /etc/prometheus/prometheus.yml"""
 
-promtool_config_test(
-    name = "test_prometheus_config",
-    srcs = ["prometheus.yml"],
+genrule(
+    name = "prometheus_dockerfile",
+    cmd = "echo '%s' > $@" % DOCKERFILE_PROMETHEUS,
+    outs = ["prometheus_dockerfile.stub"],
 )
+
+container_image(
+    name = "prometheus_docker_image",
+    base = "@prometheus_base//image",
+    entrypoint = "mv /prometheus.yml .;/bin/prometheus --config.file=prometheus.yml",
+    files = ["prometheus.yml"],
+)
+
 
 #Grafana
 
