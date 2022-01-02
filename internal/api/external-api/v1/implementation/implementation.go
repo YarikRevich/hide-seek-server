@@ -4,10 +4,9 @@ import (
 	"context"
 	"sort"
 
-	"github.com/YarikRevich/hide-seek-server/internal/api/external-api/v1/proto"
 	"github.com/YarikRevich/hide-seek-server/internal/storage"
 
-	// externalapistorage "github.com/YarikRevich/hide-seek-server/internal/storage/external-api"
+	"github.com/YarikRevich/hide-seek-server/internal/api/external-api/v1/proto"
 	"github.com/YarikRevich/hide-seek-server/tools/utils"
 	"github.com/golang/protobuf/ptypes/wrappers"
 )

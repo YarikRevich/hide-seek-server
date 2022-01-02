@@ -10,7 +10,7 @@ import (
 
 	"github.com/YarikRevich/go-demonizer/pkg/demonizer"
 	externalapiimp "github.com/YarikRevich/hide-seek-server/internal/api/external-api/v1/implementation"
-	externalapiproto "github.com/YarikRevich/hide-seek-server/internal/api/external-api/v1/proto"
+	"github.com/YarikRevich/hide-seek-server/internal/api/external-api/v1/proto"
 	"github.com/YarikRevich/hide-seek-server/internal/cache"
 	"github.com/YarikRevich/hide-seek-server/internal/interceptors"
 	"github.com/YarikRevich/hide-seek-server/internal/monitoring"
@@ -56,6 +56,8 @@ func main() {
 	grpc.UseCompressor(gzip.Name)
 	cache.UseCache()
 
-	externalapiproto.RegisterExternalServiceServer(s, externalapiimp.NewExternalService())
-	s.Serve(conn)
+	proto.RegisterExternalServiceServer(s, externalapiimp.NewExternalService())
+	if err := s.Serve(conn); err != nil {
+		logrus.Fatal(err)
+	}
 }

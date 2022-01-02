@@ -17,16 +17,12 @@ Before gameserver installation you should install [Bazel](https://docs.bazel.bui
 Go to the **ROOT PATH** for the game server and run
 
 ```
-$ make prepare
-$ sudo make install_deps
-$ sudo make build
+# Adds not installed deps to the list
+$ bazel build prepare
 
-#The default installation type is executable, it
-#means that there will be installed only executable file
-#which you should manage to run
+# Installs deps stated in a list
+$ sudo bazel build install_deps
 
-$ sudo make install
-
-#If you want to install it as a service run
-$ sudo make install type=service
+# Runs hide-seek-server ecosystem in docker containers(server, monitoring tools)
+$ sudo bazel build run
 ```

@@ -2,8 +2,7 @@ load("@bazel_gazelle//:def.bzl", "gazelle")
 
 # gazelle:prefix github.com/YarikRevich/hide-seek-server
 gazelle(
-    name = "gazelle",
-)
+    name = "gazelle")
 
 # gazelle:prefix github.com/YarikRevich/hide-seek-server
 gazelle(
@@ -75,34 +74,29 @@ genrule(
     tools = ["//:prepare.stub"],
 )
 
-GEN_PROTO = """
-    echo $(locations //api:external_proto_go) >> $@;\
-    echo EOF >> $@;
-"""
-
-genrule(
-    name = "gen_proto",
-    srcs = [
-        "//api:internal_proto_go",
-        "//api:external_proto_go",
-    ],
-    outs = ["gen_proto.stub"],
-    cmd = GEN_PROTO,
-    tools = [
-        "//api:external_proto_go",
-    ],
-)
-
 BUILD = """
+    docker network create hide-seek;\
+    docker build -t hide-seek-server -f $(location //configs:Dockerfile.server) .;\
+    docker build -t prometheus -f $(location //configs:Dockerfile.prometheus) .;\
+    docker rm -f --restart=always $$(docker ps -q --filter="ancestor=hide-seek-server");\
+    docker rm -f --restart=always $$(docker ps -q --filter="ancestor=prometheus");\
+    docker rm -f --restart=always $$(docker ps -q --filter="ancestor=bazel/configs:grafana_docker_image");\
+    docker run -d --restart=always --network=hide-seek --name=hide-seek-server hide-seek-server;\
+	docker run -p 9090:9090 -d --restart=always --network=hide-seek --name=prometheus prometheus;\
+    docker run -p 3000:3000 -d --restart=always --network=hide-seek --name=grafana bazel/configs:grafana_docker_image;\
     echo EOF >> $@;
 """
 
 genrule(
-    name = "build",
+    name = "run",
     srcs = [
-        ":gen_proto",
+        "//configs:test_prometheus_config",
+        "//configs:grafana_docker_image",
         "//cmd:hide-seek-server",
     ],
+    tools = [
+        "//configs:Dockerfile.server",
+        "//configs:Dockerfile.prometheus"],
     outs = ["build.stub"],
     cmd = BUILD,
 )

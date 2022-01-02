@@ -10,6 +10,7 @@ type WeaponsCollection struct {
 }
 
 func (mc *WeaponsCollection) InsertOrUpdate(key string, data interface{}) {
+
 	mc.elements[key] = append(mc.elements[key], data.(*proto.Weapon))
 }
 

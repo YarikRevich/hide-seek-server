@@ -8,7 +8,6 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//internal/api/external-api/v1/implementation:external_implementation",
-        "//internal/api/external-api/v1/proto:external_proto",
         "//internal/cache",
         "//internal/interceptors",
         "//internal/monitoring",
