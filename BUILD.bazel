@@ -75,39 +75,74 @@ genrule(
     tools = ["//:prepare.stub"],
 )
 
-#Server 
+SERVER_DOCKER_IMAGE_ENTRYPOINT_SCRIPT = """
+	touch hide-seek-server-config;\
+	cat $(location //configs:hide-seek-server-config) >> hide-seek-server-config;\
+	echo "\n" >> hide-seek-server-config;\
+	result="";\
+	regex='^#';\
+	while read -r file; do\
+		if ! [[ $${file} =~ $$regex ]]; then\
+        	result+="$${file} ";\
+		fi;\
+    done < "hide-seek-server-config";\
+    echo $$result >> $@;
+"""
 
-# DOCKERFILE_SERVER = """FROM golang:latest
-# LABEL Author="Yaroslav Svitlitskyi"
-# ENV DEBIAN_FRONTEND noninteractive
-# COPY . /go/src/hide-seek-server
-# WORKDIR /go/src/hide-seek-server"""
-
-# genrule(
-#     name = "server_dockerfile",
-#     cmd = "echo '%s' > $@" % DOCKERFILE_SERVER,
-#     outs = ["server_dockerfile.stub"],
-#)
+genrule(
+    name = "server_docker_image_entrypoint_script",
+    cmd = SERVER_DOCKER_IMAGE_ENTRYPOINT_SCRIPT,
+    tools = ["//configs:hide-seek-server-config"],
+    outs = ["server_docker_image_entrypoint_script.stub"],
+)
 
 container_image(
     name = "server_docker_image",
     base = "@server_base//image",
     workdir = "/",
-    entrypoint = "./hide-seek-server",
-    files = ["//cmd:hide-seek-server"],
+    entrypoint = "./hide-seek-server $(cat server_docker_image_entrypoint_script.stub)",
+    files = [
+        ":server_docker_image_entrypoint_script",
+        "//cmd:hide-seek-server"],
+)
+
+STOP = """
+	if ! [ -z $$(docker ps -q --filter="ancestor=bazel:server_docker_image") ]; then
+        docker rm -f $$(docker ps -q --filter="ancestor=bazel:server_docker_image");\
+	fi;
+	if ! [ -z $$(docker ps -q --filter="ancestor=bazel/configs:prometheus_docker_image") ]; then
+        docker rm -f $$(docker ps -q --filter="ancestor=bazel/configs:prometheus_docker_image");\
+	fi;
+	if ! [ -z $$(docker ps -q --filter="ancestor=bazel/configs:grafana_docker_image") ]; then
+        docker rm -f $$(docker ps -q --filter="ancestor=bazel/configs:grafana_docker_image");\
+	fi;
+	echo EOF >> $@;
+"""
+
+genrule(
+	name = "stop",
+	cmd = STOP,
+	outs = ["stop.stub"],
 )
 
 BUILD = """  
+	./$(location //:server_docker_image);\
     ./$(location //configs:grafana_docker_image);\
     ./$(location //configs:prometheus_docker_image);\
+	if [ -z $$(docker network list --filter name=^hide-seek$$ --format="{{ .Name }}") ]; then\
+		docker network create hide-seek;\
+	fi;\
+    docker run -d --restart=always --network=hide-seek --name=hide-seek-server bazel:server_docker_image;\
+	docker run -p 9090:9090 -d --restart=always --network=hide-seek --name=prometheus bazel/configs:prometheus_docker_image;\
+    docker run -p 3000:3000 -d --restart=always --network=hide-seek --name=grafana bazel/configs:grafana_docker_image;\
     echo EOF >> $@;
 """
 
 genrule(
     name = "run",
-    # srcs = ["//cmd:hide-seek-server"],
+	srcs = [":stop"],
     tools = [
-        ":prometheus_docker_image",
+        ":server_docker_image",
         "//configs:grafana_docker_image",
         "//configs:prometheus_docker_image",
     ],

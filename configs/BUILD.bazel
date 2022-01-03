@@ -38,3 +38,8 @@ grafana_image(
     dashboards = [":grafana_dashboards"],
     datasources = ["grafana_datasource.yml"],
 )
+
+filegroup(
+    name = "hide-seek-server-config",
+    srcs = ["hide-seek-server.config"],
+)
