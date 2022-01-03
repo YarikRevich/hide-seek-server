@@ -1,3 +1,4 @@
+load("@io_bazel_rules_docker//container:container.bzl", "container_image")
 load("@bazel_gazelle//:def.bzl", "gazelle")
 
 # gazelle:prefix github.com/YarikRevich/hide-seek-server
@@ -76,45 +77,40 @@ genrule(
 
 #Server 
 
-DOCKERFILE_SERVER = """FROM golang:latest
-LABEL Author="Yaroslav Svitlitskyi"
-ENV DEBIAN_FRONTEND noninteractive
-COPY . /go/src/hide-seek-server
-WORKDIR /go/src/hide-seek-server"""
+# DOCKERFILE_SERVER = """FROM golang:latest
+# LABEL Author="Yaroslav Svitlitskyi"
+# ENV DEBIAN_FRONTEND noninteractive
+# COPY . /go/src/hide-seek-server
+# WORKDIR /go/src/hide-seek-server"""
 
-genrule(
-    name = "server_dockerfile",
-    cmd = "echo '%s' > $@" % DOCKERFILE_SERVER,
-    outs = ["server_dockerfile.stub"],
-)
+# genrule(
+#     name = "server_dockerfile",
+#     cmd = "echo '%s' > $@" % DOCKERFILE_SERVER,
+#     outs = ["server_dockerfile.stub"],
+#)
 
-genrule(
+container_image(
     name = "server_docker_image",
-    srcs = glob(["**/*"]),
-    cmd = """
-        docker build -t hide-seek-server -f Dockerfile .;\
-    """ % DOCKERFILE_SERVER,
-    outs = ["server_docker_image.stub"],
+    base = "@server_base//image",
+    workdir = "/",
+    entrypoint = "./hide-seek-server",
+    files = ["//cmd:hide-seek-server"],
 )
 
-BUILD = """
-    docker network create hide-seek;\
-    docker rm -f --restart=always $$(docker ps -q --filter="ancestor=hide-seek-server");\
-    docker rm -f --restart=always $$(docker ps -q --filter="ancestor=prometheus");\
-    docker rm -f --restart=always $$(docker ps -q --filter="ancestor=bazel/configs:grafana_docker_image");\
-    docker run -d --restart=always --network=hide-seek --name=hide-seek-server hide-seek-server;\
-	docker run -p 9090:9090 -d --restart=always --network=hide-seek --name=prometheus prometheus;\
-    docker run -p 3000:3000 -d --restart=always --network=hide-seek --name=grafana bazel/configs:grafana_docker_image;\
+BUILD = """  
+    ./$(location //configs:grafana_docker_image);\
+    ./$(location //configs:prometheus_docker_image);\
     echo EOF >> $@;
 """
 
 genrule(
     name = "run",
-    srcs = ["//cmd:hide-seek-server"],
+    # srcs = ["//cmd:hide-seek-server"],
     tools = [
-        # "//:server_docker_image",
+        ":prometheus_docker_image",
         "//configs:grafana_docker_image",
-        "//configs:prometheus_docker_image"],
+        "//configs:prometheus_docker_image",
+    ],
     outs = ["run.stub"],
     cmd = BUILD,
 )

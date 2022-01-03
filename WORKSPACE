@@ -112,6 +112,11 @@ container_pull(
     registry = "index.docker.io",
     repository = "prom/prometheus",
 )
+container_pull(
+    name = "server_base",
+    registry = "index.docker.io",
+    repository = "insready/bazel",
+)
 load("@io_bazel_rules_docker//repositories:go_repositories.bzl", "go_deps")
 go_deps()
 

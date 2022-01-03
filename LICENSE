@@ -23,3 +23,10 @@ SOFTWARE.
 docker build -t prometheus -f Dockerfile .;\
 		
 	
+docker network create hide-seek;\
+    docker rm -f --restart=always $$(docker ps -q --filter="ancestor=hide-seek-server");\
+    docker rm -f --restart=always $$(docker ps -q --filter="ancestor=prometheus");\
+    docker rm -f --restart=always $$(docker ps -q --filter="ancestor=bazel/configs:grafana_docker_image");\
+    docker run -d --restart=always --network=hide-seek --name=hide-seek-server hide-seek-server;\
+	docker run -p 9090:9090 -d --restart=always --network=hide-seek --name=prometheus prometheus;\
+    docker run -p 3000:3000 -d --restart=always --network=hide-seek --name=grafana bazel/configs:grafana_docker_image;\
