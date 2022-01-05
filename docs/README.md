@@ -14,6 +14,9 @@ Before gameserver installation you should install [Bazel](https://docs.bazel.bui
 
 "HideSeek-Server" can be run as a simple executable or a service. Makefile provides installation as a service or as an executable
 
+# MacOS
+Beforewards you should install [Docker Desktop](https://docs.docker.com/desktop/mac/install/)
+
 Go to the **ROOT PATH** for the game server and run
 
 ```
@@ -21,7 +24,11 @@ Go to the **ROOT PATH** for the game server and run
 $ bazel build prepare
 
 # Installs deps stated in a list
-$ sudo bazel build install_deps
+# If your OS is MacOS write:
+$ bazel build deps
+
+# If your OS is Linux write:
+$ sudo bazel build deps
 
 # Runs hide-seek-server ecosystem in docker containers(server, monitoring tools)
 $ sudo bazel build run

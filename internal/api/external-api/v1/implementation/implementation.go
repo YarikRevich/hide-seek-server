@@ -8,25 +8,26 @@ import (
 
 	"github.com/YarikRevich/hide-seek-server/internal/api/external-api/v1/proto"
 	"github.com/YarikRevich/hide-seek-server/tools/utils"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/golang/protobuf/ptypes/wrappers"
 )
 
-type ExternalService struct {
-	proto.UnimplementedExternalServiceServer
+type ExternalServerService struct {
+	proto.UnimplementedExternalServerServiceServer
 }
 
-func (h *ExternalService) UpdateWorld(ctx context.Context, world *proto.World) (*wrappers.BoolValue, error) {
+func (h *ExternalServerService) UpdateWorld(ctx context.Context, world *proto.World) (*empty.Empty, error) {
 	storage.UseStorage().Local().Worlds().InsertOrUpdate(world.GetId(), world)
-	return &wrappers.BoolValue{Value: true}, nil
+	return &empty.Empty{}, nil
 }
 
-func (a *ExternalService) UpdateMap(ctx context.Context, worldMap *proto.Map) (*wrappers.BoolValue, error) {
-	storage.UseStorage().Local().Worlds().InsertOrUpdate(worldMap.Base.Parent.GetId(), worldMap)
-	return &wrappers.BoolValue{Value: true}, nil
+func (a *ExternalServerService) UpdateMap(ctx context.Context, worldMap *proto.Map) (*empty.Empty, error) {
+	storage.UseStorage().Local().Maps().InsertOrUpdate(worldMap.Base.Parent.GetId(), worldMap)
+	return &empty.Empty{}, nil
 }
 
 //Assigns random spawns to the pcs set by this world
-func (a *ExternalService) AssignRandomSpawnsToPCs(ctx context.Context, r *proto.AssignRandomSpawnsToPCsRequest) (*wrappers.BoolValue, error) {
+func (a *ExternalServerService) AssignRandomSpawnsToPCs(ctx context.Context, r *proto.AssignRandomSpawnsToPCsRequest) (*empty.Empty, error) {
 	s := storage.UseStorage()
 	worldMap := s.Local().Maps().Find(r.GetWorldId()).(*proto.Map)
 	pcs := s.Local().PCs().Find(r.GetWorldId()).([]*proto.PC)
@@ -37,7 +38,7 @@ func (a *ExternalService) AssignRandomSpawnsToPCs(ctx context.Context, r *proto.
 	return nil, nil
 }
 
-func (a *ExternalService) GetWorld(ctx context.Context, worldID *wrappers.StringValue) (*proto.GetWorldResponse, error) {
+func (a *ExternalServerService) GetWorld(ctx context.Context, worldID *wrappers.StringValue) (*proto.GetWorldResponse, error) {
 	s := storage.UseStorage().Local()
 
 	pcs := s.PCs().Find(worldID.Value).([]*proto.PC)
@@ -57,17 +58,17 @@ func (a *ExternalService) GetWorld(ctx context.Context, worldID *wrappers.String
 	}, nil
 }
 
-func (a *ExternalService) UpdatePC(ctx context.Context, r *proto.PC) (*wrappers.BoolValue, error) {
+func (a *ExternalServerService) UpdatePC(ctx context.Context, r *proto.PC) (*empty.Empty, error) {
 	storage.UseStorage().Local().PCs().InsertOrUpdate(r.Base.GetId(), r)
-	return &wrappers.BoolValue{Value: true}, nil
+	return &empty.Empty{}, nil
 }
 
-func (a *ExternalService) UpdateAmmo(ctx context.Context, r *proto.Ammo) (*wrappers.BoolValue, error) {
+func (a *ExternalServerService) UpdateAmmo(ctx context.Context, r *proto.Ammo) (*empty.Empty, error) {
 	storage.UseStorage().Local().Ammo().InsertOrUpdate(r.Base.GetId(), r)
-	return &wrappers.BoolValue{Value: true}, nil
+	return &empty.Empty{}, nil
 }
 
-func (a *ExternalService) DeleteWorld(ctx context.Context, r *wrappers.StringValue) (*wrappers.BoolValue, error) {
+func (a *ExternalServerService) DeleteWorld(ctx context.Context, r *wrappers.StringValue) (*empty.Empty, error) {
 	s := storage.UseStorage().Local()
 
 	worldIDString := r.GetValue()
@@ -78,15 +79,14 @@ func (a *ExternalService) DeleteWorld(ctx context.Context, r *wrappers.StringVal
 	s.PCs().Delete(worldIDString)
 	s.Weapons().Delete(worldIDString)
 	s.Ammo().Delete(worldIDString)
-	return &wrappers.BoolValue{Value: true}, nil
+	return &empty.Empty{}, nil
 }
 
-// func (a *ApiServer) RemovePC(ctx context.Context, r *RemovePCRequest) (*Status, error) {
-// 	c := collection.UseCollection()
-// 	delete(c.PCs[r.WorldId], r.PcId)
-// 	return &Status{Ok: true}, nil
-// }
+func (a *ExternalServerService) DeletePC(ctx context.Context, r *wrappers.StringValue) (*empty.Empty, error) {
+	storage.UseStorage().Local().PCs().Delete(r.Value)
+	return &empty.Empty{}, nil
+}
 
-func NewExternalService() *ExternalService {
-	return new(ExternalService)
+func NewExternalServerService() *ExternalServerService {
+	return new(ExternalServerService)
 }

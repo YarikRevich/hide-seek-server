@@ -56,7 +56,7 @@ func main() {
 	grpc.UseCompressor(gzip.Name)
 	cache.UseCache()
 
-	proto.RegisterExternalServiceServer(s, externalapiimp.NewExternalService())
+	proto.RegisterExternalServerServiceServer(s, externalapiimp.NewExternalServerService())
 	if err := s.Serve(conn); err != nil {
 		logrus.Fatal(err)
 	}

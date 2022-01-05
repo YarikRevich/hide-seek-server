@@ -6,11 +6,11 @@ import (
 )
 
 type WorldsCollection struct {
-	elements map[string][]*proto.World
+	elements map[string]*proto.World
 }
 
 func (mc *WorldsCollection) InsertOrUpdate(key string, data interface{}) {
-	mc.elements[key] = append(mc.elements[key], data.(*proto.World))
+	mc.elements[key] = data.(*proto.World)
 }
 
 func (mc *WorldsCollection) Find(key string) interface{} {
@@ -27,6 +27,6 @@ func (mc *WorldsCollection) Delete(key string) {
 
 func New() common.Collection {
 	return &WorldsCollection{
-		elements: make(map[string][]*proto.World),
+		elements: make(map[string]*proto.World),
 	}
 }

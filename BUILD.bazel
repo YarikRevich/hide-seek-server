@@ -16,33 +16,55 @@ gazelle(
     command = "update-repos",
 )
 
+PREPARE = """
+    echo " " > $@;\
+    if [[ $$OSTYPE == "darwin"* ]]; then\
+        if ! which brew &> /dev/null; then\
+            echo "brew" >> $@;\
+        fi;\
+    fi;\
+    if ! which go &> /dev/null; then\
+        echo "go" >> $@;\
+    fi;\
+    if ! which docker &> /dev/null; then\
+        echo "docker" >> $@;\
+    fi;\
+    echo EOF >> $@;
+"""
+
+genrule(
+    name = "prepare",
+    outs = ["prepare.stub"],
+    cmd = PREPARE,
+)
+
 DEPS = """
     if [[ $$OSTYPE == "linux"* ]]; then\
         apt update;\
     fi;\
-    if [[ $$OSTYPE == "darwin"* ]]; then\
-        if ! which brew &> /dev/null; then\
-            /bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)";\
-        fi;\
-    fi;\
-    if ! which go &> /dev/null; then\
-        if [[ $$OSTYPE == "linux"* ]]; then \
-			add-apt-repository ppa:longsleep/golang-backports;\
-        	apt-get update &> /dev/null;\
-        	apt-get install golang-1.17-go -y &> /dev/null;\
-		elif [[ $$OSTYPE == "darwin"* ]]; then \
-			brew install go@1.17;\
+    while read -r file; do \
+        if [[ $$file == "brew"* ]]; then \
+			/bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)";\
 		fi;\
-    fi;\
-     if ! which docker &> /dev/null; then\
-        if [[ $$OSTYPE == "linux"* ]]; then \
-			apt install docker.io -y;\
-		elif [[ $$OSTYPE == "darwin"* ]]; then \
-			brew install docker &> /dev/null;\
-        	brew install --cask docker &> /dev/null;\
-        	open -a /Applications/Docker.app;\
+        if [[ $$file == "go"* ]]; then \
+			if [[ $$OSTYPE == "linux"* ]]; then \
+				add-apt-repository ppa:longsleep/golang-backports;\
+        		apt-get update &> /dev/null;\
+        		apt-get install golang-1.17-go -y &> /dev/null;\
+			elif [[ $$OSTYPE == "darwin"* ]]; then \
+				brew install go@1.17;\
+			fi;\
 		fi;\
-    fi;\
+        if [[ $$file == "docker"* ]]; then \
+			if [[ $$OSTYPE == "linux"* ]]; then \
+				apt install docker.io -y;\
+			elif [[ $$OSTYPE == "darwin"* ]]; then \
+				brew install docker &> /dev/null;\
+        		brew install --cask docker &> /dev/null;\
+        		open -a /Applications/Docker.app;\
+			fi;\
+		fi;\
+    done < $(location //:prepare.stub);\
     echo EOF >> $@;
 """
 
@@ -50,6 +72,7 @@ genrule(
     name = "deps",
     outs = ["deps.stub"],
     cmd = DEPS,
+    tools = ["//:prepare.stub"],
 )
 
 SERVER_DOCKER_IMAGE_ENTRYPOINT_SCRIPT = """
