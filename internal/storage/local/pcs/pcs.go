@@ -21,16 +21,15 @@ func (mc *PCsCollection) InsertOrUpdate(key string, data interface{}) {
 	mc.elements[key] = append(mc.elements[key], data.(*proto.PC))
 }
 
-func (mc *PCsCollection) Find(key string) interface{} {
-	v, ok := mc.elements[key]
-	if ok {
+func (mc *PCsCollection) Find(key interface{}) interface{} {
+	if v, ok := mc.elements[key.(string)]; ok {
 		return v
 	}
 	return []*proto.PC{}
 }
 
-func (mc *PCsCollection) Delete(key string) {
-	delete(mc.elements, key)
+func (mc *PCsCollection) Delete(key interface{}) {
+	delete(mc.elements, key.(string))
 }
 
 func New() common.Collection {

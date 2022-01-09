@@ -10,20 +10,18 @@ type WeaponsCollection struct {
 }
 
 func (mc *WeaponsCollection) InsertOrUpdate(key string, data interface{}) {
-
 	mc.elements[key] = append(mc.elements[key], data.(*proto.Weapon))
 }
 
-func (mc *WeaponsCollection) Find(key string) interface{} {
-	v, ok := mc.elements[key]
-	if ok {
+func (mc *WeaponsCollection) Find(key interface{}) interface{} {
+	if v, ok := mc.elements[key.(string)]; ok {
 		return v
 	}
 	return []*proto.Weapon{}
 }
 
-func (mc *WeaponsCollection) Delete(key string) {
-	delete(mc.elements, key)
+func (mc *WeaponsCollection) Delete(key interface{}) {
+	delete(mc.elements, key.(string))
 }
 
 func New() common.Collection {

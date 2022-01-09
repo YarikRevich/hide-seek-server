@@ -1,0 +1,13 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "cooldown",
+    srcs = ["cooldown.go"],
+    importpath = "github.com/YarikRevich/hide-seek-server/internal/storage/local/cooldown",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//api:external_api",  # keep
+        "//internal/storage/local/common",
+        "@com_github_sirupsen_logrus//:logrus",
+    ],
+)

@@ -18,7 +18,5 @@ func (d *DB) Profiles() *collectionmanager.CollectionManager {
 }
 
 func New() *DB {
-	return &DB{
-		provider: provider.New(),
-	}
+	return &DB{provider: provider.New()}
 }

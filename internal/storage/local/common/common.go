@@ -2,6 +2,10 @@ package common
 
 type Collection interface {
 	InsertOrUpdate(string, interface{})
-	Find(string) interface{}
-	Delete(string)
+
+	//Key param can be represented as a single
+	//key or a key sequence if value of the storage map
+	//is an array and you should delete or find a proper value
+	Find(key interface{}) interface{}
+	Delete(key interface{})
 }

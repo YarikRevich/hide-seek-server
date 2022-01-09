@@ -13,16 +13,15 @@ func (ac *AmmoCollection) InsertOrUpdate(key string, data interface{}) {
 	ac.ammo[key] = append(ac.ammo[key], data.(*proto.Ammo))
 }
 
-func (ac *AmmoCollection) Find(key string) interface{} {
-	v, ok := ac.ammo[key]
-	if ok {
+func (ac *AmmoCollection) Find(key interface{}) interface{} {
+	if v, ok := ac.ammo[key.(string)]; ok {
 		return v
 	}
 	return []*proto.Ammo{}
 }
 
-func (ac *AmmoCollection) Delete(key string) {
-	delete(ac.ammo, key)
+func (ac *AmmoCollection) Delete(key interface{}) {
+	delete(ac.ammo, key.(string))
 }
 
 func New() common.Collection {

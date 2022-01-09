@@ -13,16 +13,16 @@ func (ec *ElementsCollection) InsertOrUpdate(key string, data interface{}) {
 	ec.elements[key] = append(ec.elements[key], data.(*proto.Element))
 }
 
-func (ec *ElementsCollection) Find(key string) interface{} {
-	v, ok := ec.elements[key]
+func (ec *ElementsCollection) Find(key interface{}) interface{} {
+	v, ok := ec.elements[key.(string)]
 	if ok {
 		return v
 	}
 	return []*proto.Element{}
 }
 
-func (ec *ElementsCollection) Delete(key string) {
-	delete(ec.elements, key)
+func (ec *ElementsCollection) Delete(key interface{}) {
+	delete(ec.elements, key.(string))
 }
 
 func New() common.Collection {

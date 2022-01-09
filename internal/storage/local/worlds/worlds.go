@@ -13,16 +13,15 @@ func (mc *WorldsCollection) InsertOrUpdate(key string, data interface{}) {
 	mc.elements[key] = data.(*proto.World)
 }
 
-func (mc *WorldsCollection) Find(key string) interface{} {
-	v, ok := mc.elements[key]
-	if ok {
+func (mc *WorldsCollection) Find(key interface{}) interface{} {
+	if v, ok := mc.elements[key.(string)]; ok {
 		return v
 	}
 	return []*proto.World{}
 }
 
-func (mc *WorldsCollection) Delete(key string) {
-	delete(mc.elements, key)
+func (mc *WorldsCollection) Delete(key interface{}) {
+	delete(mc.elements, key.(string))
 }
 
 func New() common.Collection {

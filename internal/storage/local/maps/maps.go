@@ -13,16 +13,15 @@ func (mc *MapsCollection) InsertOrUpdate(key string, data interface{}) {
 	mc.elements[key] = data.(*proto.Map)
 }
 
-func (mc *MapsCollection) Find(key string) interface{} {
-	v, ok := mc.elements[key]
-	if ok {
+func (mc *MapsCollection) Find(key interface{}) interface{} {
+	if v, ok := mc.elements[key.(string)]; ok {
 		return v
 	}
 	return []*proto.Map{}
 }
 
-func (mc *MapsCollection) Delete(key string) {
-	delete(mc.elements, key)
+func (mc *MapsCollection) Delete(key interface{}) {
+	delete(mc.elements, key.(string))
 }
 
 func New() common.Collection {

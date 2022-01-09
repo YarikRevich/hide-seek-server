@@ -13,5 +13,6 @@ go_library(
         "//internal/storage/local/pcs",
         "//internal/storage/local/weapons",
         "//internal/storage/local/worlds",
+        "//internal/storage/local/cooldown",
     ],
 )

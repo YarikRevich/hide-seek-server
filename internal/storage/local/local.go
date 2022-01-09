@@ -3,6 +3,7 @@ package local
 import (
 	"github.com/YarikRevich/hide-seek-server/internal/storage/local/ammo"
 	"github.com/YarikRevich/hide-seek-server/internal/storage/local/common"
+	"github.com/YarikRevich/hide-seek-server/internal/storage/local/cooldown"
 	"github.com/YarikRevich/hide-seek-server/internal/storage/local/elements"
 	"github.com/YarikRevich/hide-seek-server/internal/storage/local/maps"
 	"github.com/YarikRevich/hide-seek-server/internal/storage/local/pcs"
@@ -17,6 +18,7 @@ type Local struct {
 	elements common.Collection
 	maps     common.Collection
 	worlds   common.Collection
+	cooldown common.Collection
 }
 
 func (l *Local) Weapons() common.Collection {
@@ -42,6 +44,9 @@ func (l *Local) Elements() common.Collection {
 func (l *Local) Worlds() common.Collection {
 	return l.worlds
 }
+func (l *Local) Cooldown() common.Collection {
+	return l.cooldown
+}
 
 func New() *Local {
 	return &Local{
@@ -51,5 +56,6 @@ func New() *Local {
 		pcs:      pcs.New(),
 		ammo:     ammo.New(),
 		worlds:   worlds.New(),
+		cooldown: cooldown.New(),
 	}
 }
