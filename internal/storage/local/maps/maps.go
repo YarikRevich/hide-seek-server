@@ -17,7 +17,7 @@ func (mc *MapsCollection) Find(key interface{}) interface{} {
 	if v, ok := mc.elements[key.(string)]; ok {
 		return v
 	}
-	return []*proto.Map{}
+	return &proto.Map{}
 }
 
 func (mc *MapsCollection) Delete(key interface{}) {

@@ -23,7 +23,7 @@ func (h *ExternalServerService) InsertOrUpdateWorld(ctx context.Context, world *
 }
 
 func (a *ExternalServerService) InsertOrUpdateMap(ctx context.Context, worldMap *proto.Map) (*empty.Empty, error) {
-	storage.UseStorage().Local().Maps().InsertOrUpdate(worldMap.Base.GetId(), worldMap)
+	storage.UseStorage().Local().Maps().InsertOrUpdate(worldMap.Base.Parent.GetId(), worldMap)
 	return &empty.Empty{}, nil
 }
 
@@ -83,7 +83,7 @@ func (a *ExternalServerService) DeleteCooldown(ctx context.Context, r *proto.Del
 	return &empty.Empty{}, nil
 }
 
-func (a *ExternalServerService) FindWorldObjects(ctx context.Context, worldID *wrappers.StringValue) (*proto.GetWorldResponse, error) {
+func (a *ExternalServerService) FindWorldObjects(ctx context.Context, worldID *wrappers.StringValue) (*proto.FindWorldObjectsResponse, error) {
 	s := storage.UseStorage().Local()
 
 	pcs := s.PCs().Find(worldID.Value).([]*proto.PC)
@@ -94,11 +94,12 @@ func (a *ExternalServerService) FindWorldObjects(ctx context.Context, worldID *w
 		return copyPCs[i].GetLobbyNumber() < copyPCs[j].GetLobbyNumber()
 	})
 
-	return &proto.GetWorldResponse{
+	return &proto.FindWorldObjectsResponse{
 		World:    s.Worlds().Find(worldID.GetValue()).(*proto.World),
 		Weapons:  s.Weapons().Find(worldID.GetValue()).([]*proto.Weapon),
 		Elements: s.Elements().Find(worldID.GetValue()).([]*proto.Element),
 		Ammos:    s.Ammo().Find(worldID.GetValue()).([]*proto.Ammo),
+		WorldMap: s.Maps().Find(worldID.GetValue()).(*proto.Map),
 		PCs:      copyPCs,
 	}, nil
 }
