@@ -1,13 +1,8 @@
 package cache
 
-import (
-	"time"
-
-	"github.com/YarikRevich/hide-seek-server/tools/params"
-)
+// var ticker = time.NewTicker(time.Duration(params.GetCacheTime()))
 
 type Cache struct {
-	ticker *time.Ticker
 }
 
 // func (c *Cache) start() {
@@ -28,7 +23,5 @@ type Cache struct {
 // }
 
 func New() *Cache {
-	return &Cache{
-		ticker: time.NewTicker(time.Duration(params.GetCacheTime())),
-	}
+	return new(Cache)
 }

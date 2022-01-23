@@ -2,6 +2,7 @@ package pcs
 
 import (
 	"github.com/YarikRevich/hide-seek-server/internal/api/external-api/v1/proto"
+	"github.com/YarikRevich/hide-seek-server/internal/monitoring"
 	"github.com/YarikRevich/hide-seek-server/internal/storage/local/common"
 )
 
@@ -11,12 +12,14 @@ type PCsCollection struct {
 
 func (mc *PCsCollection) InsertOrUpdate(key string, data interface{}) {
 	q := data.(*proto.PC)
-	for _, v := range mc.elements[key] {
+	for i, v := range mc.elements[key] {
 		if v.Base.GetId() == q.Base.GetId() {
-			*v = *q
-			return
+			mc.elements[key] = append(mc.elements[key][:i], mc.elements[key][i+1:]...)
+			mc.elements[key] = append(mc.elements[key], data.(*proto.PC))
+			break
 		}
 	}
+	monitoring.UseMonitoring().RegisterManager().PlayersGauge().Inc()
 	q.LobbyNumber = int64(len(mc.elements[key]) + 1)
 	mc.elements[key] = append(mc.elements[key], data.(*proto.PC))
 }
@@ -30,6 +33,7 @@ func (mc *PCsCollection) Find(key interface{}) interface{} {
 
 func (mc *PCsCollection) Delete(key interface{}) {
 	delete(mc.elements, key.(string))
+	monitoring.UseMonitoring().RegisterManager().PlayersGauge().Dec()
 }
 
 func New() common.Collection {

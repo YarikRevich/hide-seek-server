@@ -2,19 +2,32 @@ package registermanager
 
 import (
 	"github.com/YarikRevich/hide-seek-server/internal/monitoring/register_manager/registers/common"
-	"github.com/YarikRevich/hide-seek-server/internal/monitoring/register_manager/registers/counter"
+	"github.com/YarikRevich/hide-seek-server/internal/monitoring/register_manager/registers/gauge"
+	"github.com/YarikRevich/hide-seek-server/internal/monitoring/register_manager/registers/histogram"
 )
 
 type RegisterManager struct {
-	createdworldscounter common.Register
+	worldscounter  common.Register
+	usagehistogram common.Register
+	playerscounter common.Register
 }
 
-func (rm *RegisterManager) CreatedWorldsCounter() common.Register {
-	return rm.createdworldscounter
+func (rm *RegisterManager) WorldsGauge() common.Register {
+	return rm.worldscounter
+}
+
+func (rm *RegisterManager) PlayersGauge() common.Register {
+	return rm.playerscounter
+}
+
+func (rm *RegisterManager) UsageHistogram() common.Register {
+	return rm.usagehistogram
 }
 
 func New() *RegisterManager {
 	return &RegisterManager{
-		createdworldscounter: counter.New("createdworlds"),
+		worldscounter:  gauge.New("worlds"),
+		usagehistogram: histogram.New("usage"),
+		playerscounter: gauge.New("players"),
 	}
 }

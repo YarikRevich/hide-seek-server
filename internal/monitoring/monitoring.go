@@ -16,11 +16,15 @@ type Monitoring struct {
 	registerManager *registermanager.RegisterManager
 }
 
-func (m *Monitoring) ListenAndServe() {
+func (m *Monitoring) Run() {
 	go func() {
 		http.Handle("/metrics", promhttp.Handler())
 		logrus.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", params.GetMonitoringIP(), params.GetMonitoringPort()), nil))
 	}()
+}
+
+func (m *Monitoring) RegisterManager() *registermanager.RegisterManager {
+	return m.registerManager
 }
 
 func UseMonitoring() *Monitoring {

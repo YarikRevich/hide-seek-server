@@ -4,6 +4,7 @@ import (
 	"context"
 
 	externalapiinterceptor "github.com/YarikRevich/hide-seek-server/internal/interceptors/external-api"
+	generalapiinterceptor "github.com/YarikRevich/hide-seek-server/internal/interceptors/general"
 	"google.golang.org/grpc"
 )
 
@@ -49,14 +50,13 @@ func GetReqType() string {
 
 func NewInterceptorManager() func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		generalapiinterceptor.Use(ctx, req, info, handler)
 		switch GetReqType() {
 		case External:
-			return externalapiinterceptor.NewExternalApiInterceptor().Use(
-				ctx, req, info, handler)
+			return externalapiinterceptor.Use(ctx, req, info, handler)
 		case Internal:
-
+			//TODO: create internal rpc interceptor
 		}
-
 		return handler(ctx, req)
 	}
 }
