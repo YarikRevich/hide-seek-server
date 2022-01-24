@@ -8,7 +8,7 @@ var (
 	demon          = flag.Bool("demon", false, "Runs server as demon")
 	mongohost      = flag.String("mongohost", "127.0.0.1:27017", "Host for mongo")
 	mongodb        = flag.String("mongodb", "hideseek-server", "Database to be used in mongo")
-	cachetime      = flag.Float64("cachetime", 120, "Delay for cache to be saved")
+	cachetime      = flag.Float64("cachetime", 50000, "Delay for cache to be saved")
 	monitoringIP   = flag.String("monitoring-ip", "127.0.0.1", "IP address for monitoring listening")
 	monitoringPort = flag.String("monitoring-port", "9999", "Port for monitoring listening")
 	profilecpu     = flag.Bool("profilecpu", false, "Enables profiler for CPU")

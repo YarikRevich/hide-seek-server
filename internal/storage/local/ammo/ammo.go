@@ -24,6 +24,17 @@ func (ac *AmmoCollection) Delete(key interface{}) {
 	delete(ac.ammo, key.(string))
 }
 
+func (ac *AmmoCollection) Cache() func() {
+	return func() {
+		// for k, v := range c.cache {
+		// if time.Since(v) == 0 {
+		// collection.UseCollection().CleanDataByUUID(k)
+		// delete(c.cache, k)
+		// }
+		// }
+	}
+}
+
 func New() common.Collection {
 	return &AmmoCollection{
 		ammo: make(map[string][]*proto.Ammo),

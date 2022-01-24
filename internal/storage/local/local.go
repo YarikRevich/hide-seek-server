@@ -1,6 +1,7 @@
 package local
 
 import (
+	"github.com/YarikRevich/hide-seek-server/internal/storage/cache"
 	"github.com/YarikRevich/hide-seek-server/internal/storage/local/ammo"
 	"github.com/YarikRevich/hide-seek-server/internal/storage/local/common"
 	"github.com/YarikRevich/hide-seek-server/internal/storage/local/cooldown"
@@ -48,8 +49,8 @@ func (l *Local) Cooldown() common.Collection {
 	return l.cooldown
 }
 
-func New() *Local {
-	return &Local{
+func New(c *cache.Cache) *Local {
+	l := &Local{
 		weapons:  weapons.New(),
 		elements: elements.New(),
 		maps:     maps.New(),
@@ -58,4 +59,14 @@ func New() *Local {
 		worlds:   worlds.New(),
 		cooldown: cooldown.New(),
 	}
+
+	c.Subscribe(l.weapons.Cache())
+	c.Subscribe(l.elements.Cache())
+	c.Subscribe(l.maps.Cache())
+	c.Subscribe(l.weapons.Cache())
+	c.Subscribe(l.pcs.Cache())
+	c.Subscribe(l.ammo.Cache())
+	c.Subscribe(l.worlds.Cache())
+	c.Subscribe(l.cooldown.Cache())
+	return l
 }

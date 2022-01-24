@@ -8,6 +8,7 @@ import (
 	"github.com/YarikRevich/hide-seek-server/internal/api/external-api/v1/proto"
 	"github.com/YarikRevich/hide-seek-server/internal/interceptors"
 	"github.com/YarikRevich/hide-seek-server/internal/monitoring"
+	"github.com/YarikRevich/hide-seek-server/internal/storage"
 	"github.com/YarikRevich/hide-seek-server/tools/params"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -21,6 +22,7 @@ func Run() {
 	}
 
 	monitoring.UseMonitoring().Run()
+	storage.UseStorage().Cache().Run()
 
 	opts := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
@@ -29,7 +31,6 @@ func Run() {
 	s := grpc.NewServer(opts...)
 
 	grpc.UseCompressor(gzip.Name)
-	// cache.UseCache()
 
 	proto.RegisterExternalServerServiceServer(s, implementation.NewExternalServerService())
 	if err := s.Serve(conn); err != nil {

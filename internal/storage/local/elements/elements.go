@@ -25,6 +25,17 @@ func (ec *ElementsCollection) Delete(key interface{}) {
 	delete(ec.elements, key.(string))
 }
 
+func (ec *ElementsCollection) Cache() func() {
+	return func() {
+		// for k, v := range c.cache {
+		// if time.Since(v) == 0 {
+		// collection.UseCollection().CleanDataByUUID(k)
+		// delete(c.cache, k)
+		// }
+		// }
+	}
+}
+
 func New() common.Collection {
 	return &ElementsCollection{
 		elements: make(map[string][]*proto.Element),

@@ -24,6 +24,17 @@ func (mc *WeaponsCollection) Delete(key interface{}) {
 	delete(mc.elements, key.(string))
 }
 
+func (mc *WeaponsCollection) Cache() func() {
+	return func() {
+		// for k, v := range c.cache {
+		// if time.Since(v) == 0 {
+		// collection.UseCollection().CleanDataByUUID(k)
+		// delete(c.cache, k)
+		// }
+		// }
+	}
+}
+
 func New() common.Collection {
 	return &WeaponsCollection{
 		elements: make(map[string][]*proto.Weapon),

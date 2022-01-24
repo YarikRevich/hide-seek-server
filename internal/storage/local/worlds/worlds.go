@@ -29,6 +29,17 @@ func (mc *WorldsCollection) Delete(key interface{}) {
 	monitoring.UseMonitoring().RegisterManager().WorldsGauge().Dec()
 }
 
+func (mc *WorldsCollection) Cache() func() {
+	return func() {
+		// for k, v := range c.cache {
+		// if time.Since(v) == 0 {
+		// collection.UseCollection().CleanDataByUUID(k)
+		// delete(c.cache, k)
+		// }
+		// }
+	}
+}
+
 func New() common.Collection {
 	return &WorldsCollection{
 		elements: make(map[string]*proto.World),

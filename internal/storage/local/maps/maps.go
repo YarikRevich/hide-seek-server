@@ -24,6 +24,17 @@ func (mc *MapsCollection) Delete(key interface{}) {
 	delete(mc.elements, key.(string))
 }
 
+func (mc *MapsCollection) Cache() func() {
+	return func() {
+		// for k, v := range c.cache {
+		// if time.Since(v) == 0 {
+		// collection.UseCollection().CleanDataByUUID(k)
+		// delete(c.cache, k)
+		// }
+		// }
+	}
+}
+
 func New() common.Collection {
 	return &MapsCollection{
 		elements: make(map[string]*proto.Map),

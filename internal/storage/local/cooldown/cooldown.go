@@ -46,6 +46,17 @@ func (mc *CooldownCollection) Delete(key interface{}) {
 	}
 }
 
+func (mc *CooldownCollection) Cache() func() {
+	return func() {
+		// for k, v := range c.cache {
+		// if time.Since(v) == 0 {
+		// collection.UseCollection().CleanDataByUUID(k)
+		// delete(c.cache, k)
+		// }
+		// }
+	}
+}
+
 func New() common.Collection {
 	return &CooldownCollection{
 		elements: make(map[string][]string),

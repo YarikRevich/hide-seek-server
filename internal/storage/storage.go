@@ -28,11 +28,14 @@ func (s *Storage) Local() *local.Local {
 
 func UseStorage() *Storage {
 	if instance == nil {
+		c := cache.New()
+		l := local.New(c)
 		instance = &Storage{
 			db:    db.New(),
-			cache: cache.New(),
-			local: local.New(),
+			cache: c,
+			local: l,
 		}
+
 	}
 	return instance
 }

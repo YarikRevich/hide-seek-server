@@ -36,6 +36,17 @@ func (mc *PCsCollection) Delete(key interface{}) {
 	monitoring.UseMonitoring().RegisterManager().PlayersGauge().Dec()
 }
 
+func (mc *PCsCollection) Cache() func() {
+	return func() {
+		// for k, v := range c.cache {
+		// if time.Since(v) == 0 {
+		// collection.UseCollection().CleanDataByUUID(k)
+		// delete(c.cache, k)
+		// }
+		// }
+	}
+}
+
 func New() common.Collection {
 	return &PCsCollection{
 		elements: make(map[string][]*proto.PC),
